@@ -16,11 +16,11 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-export function LoginForm({
+export function AdminLoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const [employeeId, setEmployeeId] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -33,16 +33,13 @@ export function LoginForm({
     setError(null)
 
     try {
-      const shadowEmail = `${employeeId.toLowerCase()}@internal.hr-system.com`
-
       const { error } = await supabase.auth.signInWithPassword({
-        email: shadowEmail,
+        email,
         password,
       })
-
       if (error) throw error
       // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/protected")
+      router.push("/admin")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
@@ -56,21 +53,21 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your employee ID below to login to your account
+            Enter your email below to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="employee_id">Employee ID</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="employee_id"
-                  type="employee_id"
-                  placeholder="1234567"
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
                   required
-                  value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
