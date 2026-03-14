@@ -1,6 +1,7 @@
 "use server"
 
 import supabaseAdmin from "@/lib/supabase/admin"
+import { revalidatePath } from "next/cache"
 
 export async function registerEmployee(
   employeeId: string,
@@ -36,6 +37,7 @@ export async function registerEmployee(
         employee_id: employeeId,
         first_name: firstName,
         last_name: lastName,
+        temp_password: tempPassword,
       })
 
     if (managerError) throw managerError
@@ -57,5 +59,25 @@ export async function registerEmployee(
     throw new Error("Invalid role")
   }
 
+  return { success: true }
+}
+
+export async function getManagers(companyId: string) {
+  const { data: managers, error } = await supabaseAdmin
+    .from("approving_managers")
+    .select("*")
+    .eq("company_id", companyId)
+
+  if (error) throw error
+
+  return managers
+}
+
+export async function deleteUser(userId: string) {
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
+
+  if (error) throw error
+
+  revalidatePath("/admin")
   return { success: true }
 }

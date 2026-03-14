@@ -1,22 +1,15 @@
 import { columns, Employee } from "./columns"
 import { DataTable } from "./data-table"
+import { getManagers } from "../../actions"
 
-async function getData(): Promise<Employee[]> {
+async function getData(companyId: string): Promise<Employee[]> {
   // Fetch data from your API here.
-  return [
-    {
-      employee_id: "12345678",
-      first_name: "John",
-      last_name: "Doe",
-      manager_id: "12345678",
-      role: "employee",
-    },
-    // ...
-  ]
+  const managers = await getManagers(companyId)
+  return managers
 }
 
-export default async function Users() {
-  const data = await getData()
+export default async function Users({ company_id }: { company_id: string }) {
+  const data = await getData(company_id)
 
   return (
     <div className="container mx-auto">

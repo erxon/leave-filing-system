@@ -2,6 +2,7 @@ import { User } from "@supabase/supabase-js"
 import Users from "./users/users"
 import CreateUser from "./create-user"
 import LogoutButton from "@/components/logout-button"
+import { Suspense } from "react"
 
 export default function Administrator({
   user,
@@ -28,7 +29,9 @@ export default function Administrator({
             <CreateUser company_id={administrator.company_id} />
           </div>
           <div className="w-full lg:col-span-4">
-            <Users />
+            <Suspense fallback={<div>Loading...</div>}>
+              <Users company_id={administrator.company_id} />
+            </Suspense>
           </div>
         </div>
       </div>
