@@ -1,8 +1,9 @@
 import { User } from "@supabase/supabase-js"
 import Users from "./users/users"
 import CreateUser from "./create-user"
-import LogoutButton from "@/components/logout-button"
 import { Suspense } from "react"
+import { Button } from "@/components/ui/button"
+import { Import } from "lucide-react"
 
 export default function Administrator({
   user,
@@ -16,13 +17,13 @@ export default function Administrator({
 }) {
   return (
     <>
-      <div className="px-8 py-16 lg:px-40">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="mb-2">
-            <p className="text-lg font-bold">Administrator</p>
-            <p>{user.email}</p>
-          </div>
-          <LogoutButton />
+      <div className="px-8 py-4">
+        <div className="flex justify-between">
+          <h2 className="text-md mb-8 font-semibold">Manage Users</h2>
+          <Button>
+            <Import />
+            Import
+          </Button>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-6">
           <div className="w-full lg:col-span-2">

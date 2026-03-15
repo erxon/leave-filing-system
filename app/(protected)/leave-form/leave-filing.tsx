@@ -12,11 +12,8 @@ export default function LeaveFiling({ data }: { data: Payment[] }) {
 
   return (
     <div>
-      <div className="mb-10">
-        <ProfileCard />
-      </div>
       <div className="lg:grid lg:grid-cols-10 lg:gap-4">
-        <div className="lg:col-span-3 mb-8 lg:mb-0">
+        <div className="mb-8 lg:col-span-3 lg:mb-0">
           <h1 className="mb-4 text-lg font-medium">File a Leave</h1>
           {isMobile ? <LeaveFilingDialog /> : <LeaveFilingForm />}
         </div>

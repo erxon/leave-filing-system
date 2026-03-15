@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from "sonner"
 
 export function LoginForm({
   className,
@@ -27,26 +28,24 @@ export function LoginForm({
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
     const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault()
 
-    try {
-      const shadowEmail = `${employeeId.toLowerCase()}@internal.hr-system.com`
+    // Convert ID to Shadow Email
+    const shadowEmail = `${employeeId.toLowerCase()}@internal.hr-system.com`
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: shadowEmail,
-        password,
-      })
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: shadowEmail,
+      password: password,
+    })
 
-      if (error) throw error
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/protected")
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
-    } finally {
-      setIsLoading(false)
+    if (error) {
+      toast.error("Invalid Employee ID or Password")
+    }
+
+    if (data) {
+      toast.success("Login successful")
+      router.push("/")
     }
   }
 

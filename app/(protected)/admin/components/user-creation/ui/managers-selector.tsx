@@ -8,29 +8,42 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-
-type Manager = {
-  label: string
-  value: string
-}
-
-const managers: Manager[] = [
-  { label: "Manager 1", value: "manager_1" },
-  { label: "Manager 2", value: "manager_2" },
-  { label: "Manager 3", value: "manager_3" },
-]
+import { useEffect, useState } from "react"
+import { getManagers } from "../actions"
+import { Employee } from "./users/columns"
 
 export function ManagersSelector({
+  companyId,
   value,
   field,
   onSelect,
   disabled,
 }: {
+  companyId: string
   value: { label: string; value: string }
   field: any
   onSelect: (value: { label: string; value: string } | null) => void
   disabled: boolean
 }) {
+  const [managers, setManagers] = useState<{ label: string; value: string }[]>(
+    []
+  )
+
+  useEffect(() => {
+    const fetchManagers = async () => {
+      const managers = await getManagers(companyId)
+      setManagers(
+        managers.map((manager) => {
+          return {
+            label: `${manager.first_name} ${manager.last_name}`,
+            value: manager.id,
+          }
+        })
+      )
+    }
+    fetchManagers()
+  }, [companyId])
+
   return (
     <Combobox
       disabled={disabled}

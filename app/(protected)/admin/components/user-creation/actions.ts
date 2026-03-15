@@ -27,50 +27,63 @@ export async function registerEmployee(
 
   if (authError) throw authError
 
-  if (role === "manager") {
-    const { error: managerError } = await supabaseAdmin
-      .from("approving_managers")
-      .insert({
-        id: authUser.user.id,
-        company_id: companyId,
-        role: 2,
-        employee_id: employeeId,
-        first_name: firstName,
-        last_name: lastName,
-        temp_password: tempPassword,
-      })
+  const roles = [
+    { role: "employee", id: 1 },
+    { role: "manager", id: 2 },
+  ]
 
-    if (managerError) throw managerError
-  } else if (role === "employee") {
-    const { error: employeeError } = await supabaseAdmin
-      .from("employees")
-      .insert({
-        id: authUser.user.id,
-        company_id: companyId,
-        role: 1,
-        employee_id: employeeId,
-        first_name: firstName,
-        last_name: lastName,
-        manager_id: managerId,
-      })
+  const { error: employeeCreationError } = await supabaseAdmin
+    .from("employee_profiles")
+    .insert({
+      id: authUser.user.id,
+      company_id: companyId,
+      role: roles.find((r) => r.role === role)?.id,
+      employee_id: employeeId,
+      first_name: firstName,
+      last_name: lastName,
+      temp_password: tempPassword,
+      manager_id: managerId || null,
+    })
 
-    if (employeeError) throw employeeError
-  } else {
-    throw new Error("Invalid role")
-  }
+  if (employeeCreationError) throw employeeCreationError
 
+  revalidatePath("/admin")
   return { success: true }
 }
 
-export async function getManagers(companyId: string) {
-  const { data: managers, error } = await supabaseAdmin
-    .from("approving_managers")
+export async function getEmployees(companyId: string) {
+  const { data: employees, error } = await supabaseAdmin
+    .from("employee_profiles")
     .select("*")
     .eq("company_id", companyId)
 
   if (error) throw error
 
+  return employees
+}
+
+export async function getManagers(companyId: string) {
+  const { data: managers, error } = await supabaseAdmin
+    .from("employee_profiles")
+    .select("*")
+    .eq("company_id", companyId)
+    .eq("role", 2)
+
+  if (error) throw error
+
   return managers
+}
+
+export async function getManager(managerId: string) {
+  const { data: manager, error } = await supabaseAdmin
+    .from("employee_profiles")
+    .select("*")
+    .eq("id", managerId)
+    .single()
+
+  if (error) throw error
+
+  return manager
 }
 
 export async function deleteUser(userId: string) {

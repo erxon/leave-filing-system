@@ -1,29 +1,14 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import * as z from "zod"
 import { useForm } from "@tanstack/react-form"
 import { toast } from "sonner"
 import {
   Field,
-  FieldContent,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldLegend,
-  FieldSeparator,
-  FieldSet,
-  FieldTitle,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
@@ -38,6 +23,13 @@ import {
 } from "@/components/ui/card"
 import RoleSelector from "./role-selector"
 import { registerEmployee } from "../actions"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { Eye } from "lucide-react"
+import { Spinner } from "@/components/ui/spinner"
 
 const formSchema = z.object({
   employee_id: z.string().min(1, "Please fill the employee ID"),
@@ -54,6 +46,8 @@ const formSchema = z.object({
 export default function CreateUser({ company_id }: { company_id: string }) {
   const [disableManagerSelection, setDisableManagerSelection] =
     useState<boolean>(false)
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const form = useForm({
     defaultValues: {
@@ -74,7 +68,7 @@ export default function CreateUser({ company_id }: { company_id: string }) {
       const { employee_id, password, first_name, last_name, manager_id, role } =
         value
 
-      console.log(value, company_id)
+      setIsLoading(true)
       try {
         await registerEmployee(
           employee_id,
@@ -86,9 +80,12 @@ export default function CreateUser({ company_id }: { company_id: string }) {
           role
         )
 
-        toast.success("Form submitted")
+        toast.success("User created successfully")
+        form.reset()
       } catch (error) {
-        console.log(error)
+        toast.error("Something went wrong, please try again later")
+      } finally {
+        setIsLoading(false)
       }
     },
   })
@@ -103,7 +100,6 @@ export default function CreateUser({ company_id }: { company_id: string }) {
     <Card>
       <CardHeader>
         <CardTitle>Create User</CardTitle>
-        <CardDescription>Create a new user</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -151,19 +147,32 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => {
-                        field.handleChange(e.target.value)
-                      }}
-                      aria-invalid={isInvalid}
-                      placeholder=""
-                      autoComplete="off"
-                      type="password"
-                    />
+
+                    <InputGroup>
+                      <InputGroupInput
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => {
+                          field.handleChange(e.target.value)
+                        }}
+                        aria-invalid={isInvalid}
+                        placeholder=""
+                        autoComplete="off"
+                        type={showPassword ? "text" : "password"}
+                      />
+                      <InputGroupAddon align="inline-end">
+                        <Button
+                          variant={"ghost"}
+                          size={"icon-sm"}
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          <Eye />
+                        </Button>
+                      </InputGroupAddon>
+                    </InputGroup>
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}
@@ -277,6 +286,7 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Manager</FieldLabel>
                     <ManagersSelector
+                      companyId={company_id}
                       field={field}
                       value={field.state.value}
                       onSelect={(value) => {
@@ -292,11 +302,21 @@ export default function CreateUser({ company_id }: { company_id: string }) {
               }}
             />
           </FieldGroup>
-          <DialogFooter className="mt-4">
-            <Button type="submit" form="create-user">
-              Create user
-            </Button>
-          </DialogFooter>
+          <Button
+            type="submit"
+            form="create-user"
+            className="mt-4"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Spinner />
+                Creating user...
+              </>
+            ) : (
+              "Create user"
+            )}
+          </Button>
         </form>
       </CardContent>
     </Card>

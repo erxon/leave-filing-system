@@ -9,12 +9,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteUser } from "../../actions"
+import { deleteUser, getManager } from "../../actions"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import DeleteAlert from "@/components/alerts/delete-alert"
 import { useRouter } from "next/navigation"
+import { Badge } from "@/components/ui/badge"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -43,6 +44,21 @@ export const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "manager_id",
     header: "Supervisor/Manager",
+    cell: ({ row }) => {
+      const managerId = row.getValue("manager_id") as string
+
+      const [manager, setManager] = useState<any>(null)
+
+      useEffect(() => {
+        if (managerId) {
+          getManager(managerId).then((data) => setManager(data))
+        }
+      }, [managerId])
+
+      return (
+        <span>{manager && manager.first_name + " " + manager.last_name}</span>
+      )
+    },
   },
   {
     accessorKey: "temp_password",
@@ -90,6 +106,15 @@ export const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "role",
     header: "Role",
+    cell: ({ row }) => {
+      const role = row.getValue("role")
+      return (
+        <Badge variant={role === 2 ? "default" : "secondary"}>
+          {role === 2 && "Manager"}
+          {role === 1 && "Employee"}
+        </Badge>
+      )
+    },
   },
   {
     id: "actions",
