@@ -24,7 +24,10 @@ export type Employee = {
   employee_id: string
   first_name: string
   last_name: string
-  manager_id: string
+  manager: {
+    first_name: string
+    last_name: string
+  }
   role: string
 }
 
@@ -42,21 +45,18 @@ export const columns: ColumnDef<Employee>[] = [
     header: "Last Name",
   },
   {
-    accessorKey: "manager_id",
+    accessorKey: "manager",
     header: "Supervisor/Manager",
     cell: ({ row }) => {
-      const managerId = row.getValue("manager_id") as string
-
-      const [manager, setManager] = useState<any>(null)
-
-      useEffect(() => {
-        if (managerId) {
-          getManager(managerId).then((data) => setManager(data))
-        }
-      }, [managerId])
+      const manager = row.getValue("manager") as {
+        first_name: string
+        last_name: string
+      }
 
       return (
-        <span>{manager && manager.first_name + " " + manager.last_name}</span>
+        <span>
+          {manager ? `${manager.first_name} ${manager.last_name}` : "N/A"}
+        </span>
       )
     },
   },

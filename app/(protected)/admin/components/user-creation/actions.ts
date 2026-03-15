@@ -54,7 +54,20 @@ export async function registerEmployee(
 export async function getEmployees(companyId: string) {
   const { data: employees, error } = await supabaseAdmin
     .from("employee_profiles")
-    .select("*")
+    .select(
+      `
+      id,
+      company_id,
+      role,
+      employee_id,
+      first_name,
+      last_name,
+      manager: manager_id (first_name, last_name),
+      temp_password,
+      created_at,
+      updated_at
+      `
+    )
     .eq("company_id", companyId)
 
   if (error) throw error
