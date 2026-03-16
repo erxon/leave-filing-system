@@ -32,6 +32,11 @@ const menus = [
     url: "/leave/file",
     icon: FilePlus,
   },
+  {
+    title: "Calendar",
+    url: "/calendar",
+    icon: Calendar,
+  },
 ]
 
 export function EmployeeSidebar() {
