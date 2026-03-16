@@ -21,7 +21,7 @@ export function ManagersSelector({
 }: {
   companyId: string
   value: { label: string; value: string }
-  field: any
+  field: { name: string; handleBlur: () => void }
   onSelect: (value: { label: string; value: string } | null) => void
   disabled: boolean
 }) {

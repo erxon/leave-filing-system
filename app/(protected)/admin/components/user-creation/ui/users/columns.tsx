@@ -31,6 +31,46 @@ export type Employee = {
   role: string
 }
 
+const PasswordCell = ({ row }: { row: { getValue: (key: string) => unknown } }) => {
+  const [togglePassword, setTogglePassword] = useState<boolean>(false)
+
+  const password = row.getValue("temp_password") as string
+  return (
+    <div className="flex items-center gap-2">
+      <Input
+        type={togglePassword ? "text" : "password"}
+        value={password}
+        readOnly
+        className="text-sm"
+        size={8}
+      />
+      {password && (
+        <>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => {
+              setTogglePassword(!togglePassword)
+            }}
+          >
+            <Eye />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => {
+              navigator.clipboard.writeText(password)
+              toast.info("Copied to clipboard")
+            }}
+          >
+            <Copy />
+          </Button>
+        </>
+      )}
+    </div>
+  )
+}
+
 export const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "employee_id",
@@ -63,45 +103,7 @@ export const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "temp_password",
     header: "Temp Password",
-    cell: ({ row }) => {
-      const [togglePassword, setTogglePassword] = useState<boolean>(false)
-
-      const password = row.getValue("temp_password") as string
-      return (
-        <div className="flex items-center gap-2">
-          <Input
-            type={togglePassword ? "text" : "password"}
-            value={password}
-            readOnly
-            className="text-sm"
-            size={8}
-          />
-          {password && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => {
-                  setTogglePassword(!togglePassword)
-                }}
-              >
-                <Eye />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => {
-                  navigator.clipboard.writeText(password)
-                  toast.info("Copied to clipboard")
-                }}
-              >
-                <Copy />
-              </Button>
-            </>
-          )}
-        </div>
-      )
-    },
+    cell: ({ row }) => <PasswordCell row={row} />,
   },
   {
     accessorKey: "role",

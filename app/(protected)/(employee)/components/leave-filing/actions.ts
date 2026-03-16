@@ -49,10 +49,10 @@ export async function fileSingleLeave(leave: Leave) {
     }
 
     return { success: true, data: data, message: "Success" }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Unknown error",
     }
   }
 }

@@ -110,9 +110,8 @@ export default function CreateUser({ company_id }: { company_id: string }) {
           }}
         >
           <FieldGroup>
-            <form.Field
-              name="employee_id"
-              children={(field) => {
+            <form.Field name="employee_id">
+              {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid
 
@@ -137,10 +136,9 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                   </Field>
                 )
               }}
-            />
-            <form.Field
-              name="password"
-              children={(field) => {
+            </form.Field>
+            <form.Field name="password">
+              {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid
 
@@ -179,7 +177,7 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                   </Field>
                 )
               }}
-            />
+            </form.Field>
             <div className="flex items-center justify-start">
               <p className="text-xs">You can generate a secure password</p>
               <Button
@@ -191,9 +189,8 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                 Generate password
               </Button>
             </div>
-            <form.Field
-              name="first_name"
-              children={(field) => {
+            <form.Field name="first_name">
+              {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid
 
@@ -218,10 +215,9 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                   </Field>
                 )
               }}
-            />
-            <form.Field
-              name="last_name"
-              children={(field) => {
+            </form.Field>
+            <form.Field name="last_name">
+              {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid
 
@@ -246,10 +242,9 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                   </Field>
                 )
               }}
-            />
-            <form.Field
-              name="role"
-              children={(field) => {
+            </form.Field>
+            <form.Field name="role">
+              {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid
                 return (
@@ -276,10 +271,9 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                   </Field>
                 )
               }}
-            />
-            <form.Field
-              name="manager_id"
-              children={(field) => {
+            </form.Field>
+            <form.Field name="manager_id">
+              {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid
                 return (
@@ -300,7 +294,7 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                   </Field>
                 )
               }}
-            />
+            </form.Field>
           </FieldGroup>
           <Button
             type="submit"

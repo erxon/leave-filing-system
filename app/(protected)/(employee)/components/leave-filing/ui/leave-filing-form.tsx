@@ -53,6 +53,7 @@ export default function LeaveFilingForm({
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchEmployee()
   }, [fetchEmployee])
 
