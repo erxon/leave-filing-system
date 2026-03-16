@@ -13,7 +13,7 @@ import {
 export default function LeaveType({
   onChange,
 }: {
-  onChange?: (value: string) => void
+  onChange?: (value: "VL" | "SL") => void
 }) {
   return (
     <Select onValueChange={onChange} defaultValue="VL">

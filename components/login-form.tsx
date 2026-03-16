@@ -45,7 +45,7 @@ export function LoginForm({
 
     if (data) {
       toast.success("Login successful")
-      router.push("/")
+      router.push("/leave/history")
     }
   }
 

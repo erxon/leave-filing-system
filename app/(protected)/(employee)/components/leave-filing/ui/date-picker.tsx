@@ -1,6 +1,5 @@
 "use client"
 
-
 import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -21,8 +20,10 @@ export function DatePicker({
   setDate?: React.Dispatch<React.SetStateAction<Date>>
   onChange?: (date: Date) => void
 }) {
-  const [internalDate, internalSetDate] = React.useState<Date>(addDays(startOfToday(), 1))
-  
+  const [internalDate, internalSetDate] = React.useState<Date>(
+    addDays(startOfToday(), 1)
+  )
+
   const date = externalDate ?? internalDate
   const setDate = (newDate: Date | undefined) => {
     if (!newDate) return
@@ -36,7 +37,7 @@ export function DatePicker({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger className="w-full" asChild>
         <Button
           variant="outline"
           data-empty={!date}

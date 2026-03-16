@@ -6,16 +6,19 @@ import LeaveType from "./leave-type"
 import { Plus, X } from "lucide-react"
 import { addDays, startOfToday } from "date-fns"
 import { useEffect, useState } from "react"
+import DurationSelect from "./duration-select"
 
 interface Leaves {
   date: Date
   leaveType: string
+  duration: string
 }
 
 export default function MultipleDatePicker() {
   const [date, setDate] = useState<Date | undefined>(addDays(startOfToday(), 1))
-  const [leaves, setLeaves] = useState<{ date: Date; leaveType: string }[]>([])
+  const [leaves, setLeaves] = useState<Leaves[]>([])
   const [leaveType, setLeaveType] = useState<string>("VL")
+  const [duration, setDuration] = useState<string>("whole-day")
 
   const handleAddDate = () => {
     if (!date || !leaveType) return
@@ -28,16 +31,20 @@ export default function MultipleDatePicker() {
       ) {
         return [...prev]
       } else {
-        return [...prev, {date: date, leaveType: leaveType}]
+        return [
+          ...prev,
+          { date: date, leaveType: leaveType, duration: duration },
+        ]
       }
     })
   }
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex flex-col items-end gap-2 border p-2">
         <DatePicker onChange={setDate} date={date} />
         <LeaveType onChange={setLeaveType} />
+        <DurationSelect onChange={setDuration} />
         <Button onClick={handleAddDate} size={"icon"} variant={"outline"}>
           <Plus />
         </Button>

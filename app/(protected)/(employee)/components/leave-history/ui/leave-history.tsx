@@ -19,7 +19,7 @@ interface LeaveHistoryProps {
 
 export default function LeaveHistory({ data }: LeaveHistoryProps) {
   return (
-    <div className="container py-4">
+    <div className="container px-8 py-4">
       <DataTable columns={columns} data={data} />
     </div>
   )
