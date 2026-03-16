@@ -19,7 +19,7 @@ export default function Page() {
 
   const handleDateSelect = (selectedDates: Date[] | undefined) => {
     setDates(selectedDates)
-    
+
     // Clean up details for unselected dates
     if (selectedDates) {
       const newDetails = { ...dateDetails }
@@ -31,7 +31,7 @@ export default function Page() {
           delete newDetails[key]
         }
       })
-      
+
       // Initialize details for newly selected dates
       selectedDates.forEach((date) => {
         const key = date.toISOString()
@@ -39,7 +39,7 @@ export default function Page() {
           newDetails[key] = { duration: "full-day", reason: "" }
         }
       })
-      
+
       setDateDetails(newDetails)
     } else {
       setDateDetails({})
@@ -60,18 +60,21 @@ export default function Page() {
     }))
   }
 
-  const isFormValid = dates && dates.length > 0 && dates.every((d) => {
-    const detail = dateDetails[d.toISOString()]
-    return detail && detail.reason.trim() !== ""
-  })
+  const isFormValid =
+    dates &&
+    dates.length > 0 &&
+    dates.every((d) => {
+      const detail = dateDetails[d.toISOString()]
+      return detail && detail.reason.trim() !== ""
+    })
 
   return (
-    <div className="flex-1 space-y-6 p-8 pt-6">
+    <div className="flex-1 space-y-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">File a Leave</h2>
+        <h2 className="text-xl font-bold tracking-tight">File a Leave</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* Left Column: Controls */}
         <div className="space-y-6">
           <div className="space-y-2">
@@ -83,7 +86,9 @@ export default function Page() {
 
           {leaveType === "SL" && (
             <div className="space-y-2">
-              <Label htmlFor="medical-cert">Medical Certificate (Required for Sick Leave)</Label>
+              <Label htmlFor="medical-cert">
+                Medical Certificate (Required for Sick Leave)
+              </Label>
               <div className="grid w-full max-w-sm items-center gap-1.5">
                 <Input id="medical-cert" type="file" />
               </div>
@@ -99,7 +104,7 @@ export default function Page() {
         <div className="space-y-6">
           <div className="space-y-2">
             <Label>Select Dates</Label>
-            <div className="border rounded-md p-4 w-fit bg-card inline-block">
+            <div className="inline-block w-fit rounded-md border bg-card p-4">
               <Calendar
                 mode="multiple"
                 selected={dates}
@@ -114,17 +119,18 @@ export default function Page() {
               <Label>Details for Selected Dates</Label>
               {dates.map((date) => {
                 const dateStr = date.toISOString()
-                const details = dateDetails[dateStr] || { duration: "full-day", reason: "" }
+                const details = dateDetails[dateStr] || {
+                  duration: "full-day",
+                  reason: "",
+                }
 
                 return (
                   <div
                     key={dateStr}
-                    className="border rounded-md p-4 space-y-4 bg-card"
+                    className="space-y-4 rounded-md border bg-card p-4"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">
-                        {format(date, "PPP")}
-                      </span>
+                      <span className="font-medium">{format(date, "PPP")}</span>
                       <div className="w-32">
                         <DurationSelect
                           onChange={(val: "full-day" | "half-day") =>
@@ -134,7 +140,9 @@ export default function Page() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`reason-${dateStr}`}>Reason <span className="text-destructive">*</span></Label>
+                      <Label htmlFor={`reason-${dateStr}`}>
+                        Reason <span className="text-destructive">*</span>
+                      </Label>
                       <Textarea
                         id={`reason-${dateStr}`}
                         placeholder="Please provide a reason..."

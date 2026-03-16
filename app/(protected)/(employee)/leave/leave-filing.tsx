@@ -2,14 +2,14 @@
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import LeaveHistory from "../components/leave-history/ui/leave-history"
-import { Payment } from "../components/leave-history/ui/columns"
+import { LeaveHistoryItem } from "../components/leave-history/ui/columns"
 import { Employee } from "../../admin/components/user-creation/ui/users/columns"
 
 export default function LeaveFiling({
   data,
   employee,
 }: {
-  data: Payment[]
+  data: LeaveHistoryItem[] // Updated from Payment
   employee: Employee
 }) {
   const isMobile = useMediaQuery("(max-width: 1380px)")

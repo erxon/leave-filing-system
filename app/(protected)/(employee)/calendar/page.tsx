@@ -71,7 +71,7 @@ export default async function CalendarPage() {
   ]
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-4rem)] w-full flex-col space-y-4 p-8 pt-6">
+    <div className="mx-auto flex h-[calc(100vh-4rem)] w-full flex-col space-y-4">
       <div className="flex flex-col justify-start">
         <h2 className="mb-2 text-xl font-bold tracking-tight">
           Department Calendar
