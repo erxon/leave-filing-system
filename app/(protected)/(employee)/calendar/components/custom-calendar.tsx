@@ -13,7 +13,7 @@ import {
   addMonths,
   subMonths,
 } from "date-fns"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -31,7 +31,19 @@ export type ApprovedLeave = {
   duration: "full-day" | "half-day"
 }
 
-export default function CustomCalendar({ events }: { events: ApprovedLeave[] }) {
+export type HolidayEvent = {
+  id: string
+  name: string
+  date: Date
+}
+
+export default function CustomCalendar({
+  events,
+  holidays = [],
+}: {
+  events: ApprovedLeave[]
+  holidays?: HolidayEvent[]
+}) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
@@ -55,10 +67,16 @@ export default function CustomCalendar({ events }: { events: ApprovedLeave[] }) 
     return targetDate >= startDate && targetDate <= endDate
   }
 
+  // Helper to check if a date is a holiday
+  const getHolidaysForDate = (date: Date) => {
+    const targetDate = new Date(date).setHours(0, 0, 0, 0)
+    return holidays.filter((h) => new Date(h.date).setHours(0, 0, 0, 0) === targetDate)
+  }
+
   return (
-    <div className="flex flex-col space-y-4 w-full h-full bg-card p-4 rounded-xl shadow-sm border">
+    <div className="flex w-full flex-col h-full rounded-xl border bg-card p-4 shadow-sm space-y-4">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold">
           {format(currentMonth, "MMMM yyyy")}
         </h2>
@@ -76,7 +94,7 @@ export default function CustomCalendar({ events }: { events: ApprovedLeave[] }) 
       </div>
 
       {/* WeekDays Header */}
-      <div className="grid grid-cols-7 gap-1 text-center font-medium text-muted-foreground mb-2">
+      <div className="mb-2 grid grid-cols-7 gap-1 text-center font-medium text-muted-foreground">
         {weekDays.map((day) => (
           <div key={day} className="py-2 text-sm">
             {day}
@@ -85,25 +103,26 @@ export default function CustomCalendar({ events }: { events: ApprovedLeave[] }) 
       </div>
 
       {/* Days Grid */}
-      <div className="grid grid-cols-7 gap-px bg-muted rounded-md overflow-hidden flex-1 auto-rows-fr">
+      <div className="flex-1 overflow-hidden grid auto-rows-fr grid-cols-7 gap-px rounded-md bg-muted">
         <TooltipProvider>
           {daysInGrid.map((day, idx) => {
             const isCurrentMonth = isSameMonth(day, monthStart)
             const isCurrentDay = isToday(day)
 
-            // Find events for this day
+            // Find events and holidays for this day
             const dayEvents = events.filter((e) => isDateInEvent(day, e))
+            const dayHolidays = getHolidaysForDate(day)
 
             return (
               <div
                 key={day.toString() + idx}
                 className={`min-h-[100px] bg-background p-2 transition-colors hover:bg-muted/50 ${
-                  !isCurrentMonth ? "text-muted-foreground/50 bg-muted/20" : ""
+                  !isCurrentMonth ? "bg-muted/20 text-muted-foreground/50" : ""
                 }`}
               >
-                <div className="flex justify-between items-start mb-1">
+                <div className="mb-1 flex items-start justify-between">
                   <span
-                    className={`font-medium text-sm w-6 h-6 flex items-center justify-center rounded-full ${
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-medium ${
                       isCurrentDay
                         ? "bg-primary text-primary-foreground"
                         : ""
@@ -113,12 +132,36 @@ export default function CustomCalendar({ events }: { events: ApprovedLeave[] }) 
                   </span>
                 </div>
 
-                <div className="space-y-1 mt-2">
+                <div className="mt-2 space-y-1">
+                  {/* Render Holidays First */}
+                  {dayHolidays.map((holiday) => (
+                    <Tooltip key={holiday.id}>
+                      <TooltipTrigger asChild>
+                        <div className="flex cursor-pointer items-center space-x-1 truncate rounded-md bg-purple-100 p-1 px-2 text-xs text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                          <Star className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{holiday.name}</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="text-sm">
+                          <p className="font-bold flex items-center space-x-1">
+                            <Star className="h-4 w-4 text-purple-500 mr-1" />
+                            {holiday.name}
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {format(holiday.date, "PPP")}
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+
+                  {/* Render Leaves */}
                   {dayEvents.map((event) => (
                     <Tooltip key={event.id}>
                       <TooltipTrigger asChild>
                         <div
-                          className={`text-xs p-1 px-2 rounded-md truncate cursor-pointer ${
+                          className={`cursor-pointer truncate rounded-md p-1 px-2 text-xs ${
                             event.type === "Sick Leave"
                               ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                               : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
@@ -131,8 +174,10 @@ export default function CustomCalendar({ events }: { events: ApprovedLeave[] }) 
                         <div className="text-sm">
                           <p className="font-bold">{event.employeeName}</p>
                           <p>{event.type}</p>
-                          <p className="text-muted-foreground">{event.duration}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-muted-foreground">
+                            {event.duration}
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
                             {format(event.startDate, "MMM d")} -{" "}
                             {format(event.endDate, "MMM d, yyyy")}
                           </p>
