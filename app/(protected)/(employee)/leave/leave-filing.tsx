@@ -19,7 +19,6 @@ export default function LeaveFiling({
       <div className="lg:grid lg:grid-cols-10 lg:gap-4">
         <div className="lg:col-span-7">
           <h1 className="text-lg font-medium">Leaves</h1>
-          <LeaveHistory data={data} />
         </div>
       </div>
     </div>

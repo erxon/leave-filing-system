@@ -48,9 +48,14 @@ export default async function Page() {
   return (
     <div className="flex-1 space-y-6 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-xl font-bold tracking-tight">
-          Hi, {employee.first_name}
-        </h2>
+        <div>
+          <h2 className="text-xl font-bold tracking-tight">
+            Hi, {employee.first_name}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Employee ID {employee.employee_id}
+          </p>
+        </div>
         <div className="flex items-center space-x-2">
           <QuickLeave />
         </div>

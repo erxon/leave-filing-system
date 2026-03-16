@@ -27,6 +27,11 @@ const menus = [
     url: "/leave/history",
     icon: History,
   },
+  {
+    title: "Leave Request",
+    url: "/leave/file",
+    icon: FilePlus,
+  },
 ]
 
 export function EmployeeSidebar() {
