@@ -15,27 +15,55 @@ import { useState } from "react"
 import { addDays, startOfToday } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-
-interface Leave {
-  leave_type: "VL" | "SL"
-  reason: string | null
-  duration: "full-day" | "half-day" | null
-}
+import { fileSingleLeave } from "../actions"
+import { Leave } from "@/lib/types"
+import { toast } from "sonner"
 
 export default function QuickLeave() {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false)
   const [date, setDate] = useState<Date | undefined>(addDays(startOfToday(), 1))
-  const [leave, setLeave] = useState<Leave>({
+  const [leave, setLeave] = useState<Omit<Leave, "date">>({
     leave_type: "VL",
     reason: null,
     duration: null,
   })
 
-  const handleFileLeave = () => {
-    console.log(leave)
+  const handleFileLeave = async () => {
+    if (!date) return
+    if (!leave.duration || !leave.leave_type || !leave.reason) return
+
+    const leaveValues = {
+      date: date,
+      ...leave,
+    }
+
+    setIsLoading(true)
+    try {
+      const result = await fileSingleLeave(leaveValues)
+
+      if (result.success) {
+        toast("Leave filed successfully", {
+          description: `Your leave on ${date.toDateString()} has been filed, status will be updated soon`,
+        })
+      } else {
+        toast("Error", {
+          description: result.message,
+        })
+      }
+    } catch (error) {
+      toast("Error", {
+        description: "Something went wrong, please try again later",
+        className: "bg-red-500 text-white",
+      })
+    } finally {
+      setIsLoading(false)
+      setOpen(false)
+    }
   }
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Button>Quick Leave</Button>
       </DialogTrigger>
@@ -58,7 +86,9 @@ export default function QuickLeave() {
           />
         </div>
         <DialogFooter>
-          <Button onClick={handleFileLeave}>File</Button>
+          <Button onClick={handleFileLeave} disabled={isLoading}>
+            {isLoading ? "Filing..." : "File"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -11,3 +11,10 @@ export interface EmployeeProfile {
   created_at?: string
   updated_at?: string
 }
+
+export interface Leave {
+  leave_type: "VL" | "SL"
+  reason: string | null
+  duration: "full-day" | "half-day" | null
+  date: Date
+}
