@@ -1,5 +1,5 @@
-import LeaveHistory from "../../components/leave-history/ui/leave-history"
-import { getData } from "../../components/leave-history/ui/leave-history"
+import LeaveHistory from "../../components/leave-history/leave-history"
+import { getData } from "../../components/leave-history/leave-history"
 
 export default async function Page() {
   const leaveData = await getData()

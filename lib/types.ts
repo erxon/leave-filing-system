@@ -13,8 +13,8 @@ export interface EmployeeProfile {
 }
 
 export interface Leave {
-  leave_type: "VL" | "SL"
+  leave_type: string
   reason: string | null
-  duration: "full-day" | "half-day" | null
+  duration: string | null
   date: Date
 }

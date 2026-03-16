@@ -1,8 +1,8 @@
 "use client"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
-import LeaveHistory from "../components/leave-history/ui/leave-history"
-import { LeaveHistoryItem } from "../components/leave-history/ui/columns"
+import LeaveHistory from "../components/leave-history/leave-history"
+import { LeaveHistoryItem } from "../components/leave-history/columns"
 import { Employee } from "../../admin/components/user-creation/ui/users/columns"
 
 export default function LeaveFiling({

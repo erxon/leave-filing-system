@@ -9,12 +9,15 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { format, startOfToday, addDays } from "date-fns"
+import { fileMultipleLeaves } from "./actions"
+import { toast } from "sonner"
 
 export default function Page() {
-  const [leaveType, setLeaveType] = useState<"VL" | "SL">("VL")
+  const [isLoading, setIsLoading] = useState(false)
+  const [leaveType, setLeaveType] = useState<string>("VL")
   const [dates, setDates] = useState<Date[] | undefined>([])
   const [dateDetails, setDateDetails] = useState<
-    Record<string, { duration: "full-day" | "half-day"; reason: string }>
+    Record<string, { duration: string; reason: string }>
   >({})
 
   const handleDateSelect = (selectedDates: Date[] | undefined) => {
@@ -68,6 +71,33 @@ export default function Page() {
       return detail && detail.reason.trim() !== ""
     })
 
+  const handleSubmit = async () => {
+    const leaves = {
+      leave_type: leaveType,
+      dates: dates,
+      date_details: dateDetails,
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fileMultipleLeaves(leaves)
+      if (response.success) {
+        toast.success("Leave filed successfully", {
+          description: "Your leave request has been submitted.",
+        })
+        setDates([])
+        setDateDetails({})
+        setLeaveType("VL")
+      } else {
+        toast.error(response.message)
+      }
+    } catch (error) {
+      toast.error("Something went wrong")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex-1 space-y-6">
       <div className="flex items-center justify-between space-y-2">
@@ -95,8 +125,12 @@ export default function Page() {
             </div>
           )}
 
-          <Button disabled={!isFormValid} className="w-full">
-            Submit Leave Request
+          <Button
+            onClick={handleSubmit}
+            disabled={!isFormValid || isLoading}
+            className="w-full"
+          >
+            {isLoading ? "Submitting..." : "Submit Leave Request"}
           </Button>
         </div>
 

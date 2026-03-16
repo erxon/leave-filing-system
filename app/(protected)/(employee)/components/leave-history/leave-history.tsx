@@ -5,7 +5,7 @@ import { addDays, subDays } from "date-fns"
 export async function getData(): Promise<LeaveHistoryItem[]> {
   // Fetch data from your API here.
   const today = new Date()
-  
+
   return [
     {
       id: "REQ-1001",
