@@ -1,10 +1,8 @@
 "use client"
 
 import {
-  IconCreditCard,
   IconDotsVertical,
   IconLogout,
-  IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react"
 
@@ -26,13 +24,17 @@ import {
 } from "@/components/ui/sidebar"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export function NavUser({
   user,
 }: {
   user: {
-    name: string
-    email: string
+    name: {
+      first_name: string
+      last_name: string
+    }
+    employee_id: string
     avatar: string
   }
 }) {
@@ -42,7 +44,7 @@ export function NavUser({
   const handleLogout = () => {
     const supabase = createClient()
     supabase.auth.signOut()
-    router.push("/auth/admin/login")
+    router.push("/auth/login")
   }
 
   return (
@@ -55,15 +57,21 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage
+                  src={user.avatar}
+                  alt={`${user.name.first_name} ${user.name.last_name}`}
+                />
                 <AvatarFallback className="rounded-lg">
-                  {user.email.slice(0, 2).toUpperCase()}
+                  {user.name.first_name.slice(0, 1).toUpperCase()}
+                  {user.name.last_name.slice(0, 1).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate font-medium">
+                  {user.name.first_name} {user.name.last_name}
+                </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {user.email}
+                  {user.employee_id}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -78,22 +86,34 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage
+                    src={user.avatar}
+                    alt={`${user.name.first_name} ${user.name.last_name}`}
+                  />
+                  <AvatarFallback className="rounded-lg">
+                    {user.name.first_name.slice(0, 1).toUpperCase()}
+                    {user.name.last_name.slice(0, 1).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate font-medium">
+                    {user.name.first_name} {user.name.last_name}
+                  </span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {user.email}
+                    {user.employee_id}
                   </span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push("/profile")
+                }}
+              >
                 <IconUserCircle />
-                Account
+                Profile
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

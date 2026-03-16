@@ -7,6 +7,7 @@ export interface EmployeeProfile {
   role: string
   temp_password?: string
   company_id: string
+  avatar_url?: string
   created_at?: string
   updated_at?: string
 }

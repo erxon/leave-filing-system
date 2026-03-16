@@ -1,5 +1,3 @@
-"use client"
-
 import {
   Sidebar,
   SidebarContent,
@@ -11,10 +9,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { FilePlus, History, Calendar, LogOut, Gauge } from "lucide-react"
+import { FilePlus, History, Calendar, Gauge } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
-import LeaveFilingForm from "../leave-filing/ui/leave-filing-form"
+import FetchUser from "@/components/sidebar/fetch-user"
+import { Suspense } from "react"
 
 const menus = [
   {
@@ -40,8 +38,6 @@ const menus = [
 ]
 
 export function EmployeeSidebar() {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
-
   return (
     <>
       <Sidebar collapsible="icon">
@@ -66,14 +62,13 @@ export function EmployeeSidebar() {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip={"Logout"}>
-                <LogOut /> Logout
-              </SidebarMenuButton>
+              <Suspense fallback={<div>Loading...</div>}>
+                <FetchUser />
+              </Suspense>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <LeaveFilingForm open={isOpen} setOpen={setIsOpen} />
     </>
   )
 }

@@ -9,9 +9,9 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Users, Settings } from "lucide-react"
-import { NavUser } from "./nav-user"
+import { NavUser } from "../../../../../../../components/sidebar/nav-user"
 import { Suspense } from "react"
-import FetchUser from "./fetch-user"
+import FetchUser from "../../../../../../../components/sidebar/fetch-user"
 import Link from "next/link"
 
 export function AdminSidebar() {
