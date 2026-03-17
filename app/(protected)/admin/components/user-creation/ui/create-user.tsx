@@ -17,7 +17,6 @@ import { ManagersSelector } from "./managers-selector"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -82,7 +81,7 @@ export default function CreateUser({ company_id }: { company_id: string }) {
 
         toast.success("User created successfully")
         form.reset()
-      } catch (error) {
+      } catch {
         toast.error("Something went wrong, please try again later")
       } finally {
         setIsLoading(false)

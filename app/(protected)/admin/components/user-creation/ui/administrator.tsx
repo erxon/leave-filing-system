@@ -1,4 +1,3 @@
-import { User } from "@supabase/supabase-js"
 import Users from "./users/users"
 import CreateUser from "./create-user"
 import { Suspense } from "react"
@@ -6,10 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Import } from "lucide-react"
 
 export default function Administrator({
-  user,
   administrator,
 }: {
-  user: User
   administrator: {
     company_id: string
     user_id: string

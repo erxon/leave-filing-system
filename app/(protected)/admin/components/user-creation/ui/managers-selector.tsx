@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/combobox"
 import { useEffect, useState } from "react"
 import { getManagers } from "../actions"
-import { Employee } from "./users/columns"
 
 export function ManagersSelector({
   companyId,

@@ -91,7 +91,7 @@ export default function Page() {
       } else {
         toast.error(response.message)
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong")
     } finally {
       setIsLoading(false)

@@ -3,6 +3,17 @@ import { DataTable } from "./data-table"
 import { createClient } from "@/lib/supabase/server"
 import { getEmployee } from "@/app/auth/actions"
 
+interface LeaveWithDetails {
+  id: string
+  employee_id: string
+  date: string
+  duration: string
+  reason: string
+  remarks: string | null
+  leave_types: { leave_type: string } | null
+  status: { status_name: string } | null
+}
+
 export async function getData(): Promise<LeaveHistoryItem[]> {
   const supabase = await createClient()
 
@@ -27,18 +38,18 @@ export async function getData(): Promise<LeaveHistoryItem[]> {
   // Supabase returns nested objects for foregin keys and string for dates.
   // We need to map them to match LeaveHistoryItem.
 
-  const formattedLeaves: LeaveHistoryItem[] = (leaves || []).map(
-    (leave: any) => ({
-      id: leave.id,
-      employee_id: leave.employee_id,
-      date: new Date(leave.date),
-      duration: leave.duration,
-      reason: leave.reason,
-      type: leave.leave_types.leave_type,
-      status: leave.status.status_name,
-      remarks: leave.remarks,
-    })
-  )
+  const formattedLeaves: LeaveHistoryItem[] = (
+    (leaves as unknown as LeaveWithDetails[]) || []
+  ).map((leave) => ({
+    id: leave.id,
+    employee_id: leave.employee_id,
+    date: new Date(leave.date),
+    duration: leave.duration,
+    reason: leave.reason,
+    type: leave.leave_types?.leave_type || "Unknown",
+    status: leave.status?.status_name || "Unknown",
+    remarks: leave.remarks,
+  }))
 
   return formattedLeaves
 }

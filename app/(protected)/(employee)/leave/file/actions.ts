@@ -15,7 +15,7 @@ export async function fileMultipleLeaves(leaves: Leaves) {
 
     const employee = await getEmployee()
 
-    const { data: leaveTypes, error: leaveTypesError } = await supabase
+    const { data: leaveTypes } = await supabase
       .from("leave_types")
       .select("*")
 
@@ -25,7 +25,7 @@ export async function fileMultipleLeaves(leaves: Leaves) {
 
     if (leaves.dates && leaves.dates.length > 0) {
       for (const date of leaves.dates) {
-        const { data: existingLeave, error: existingLeaveError } =
+        const { data: existingLeave } =
           await supabase
             .from("leaves")
             .select("*")

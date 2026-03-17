@@ -29,21 +29,19 @@ export default async function Page() {
     redirect("/auth/login")
   }
 
-  const recentRequests = [
-    {
-      id: "REQ-001",
-      type: "Vacation Leave",
-      date: "Oct 12 - Oct 15",
-      status: "Approved",
-    },
-    { id: "REQ-002", type: "Sick Leave", date: "Oct 01", status: "Pending" },
-    {
-      id: "REQ-003",
-      type: "Emergency Leave",
-      date: "Sep 15",
-      status: "Rejected",
-    },
-  ]
+  const { data: recentRequests } = await supabase
+    .from("leaves")
+    .select(
+      `
+      *,
+      leave_types ( leave_type ),
+      status ( status_name ),
+      employee_profiles!leaves_employee_id_fkey ( first_name, last_name )
+      `
+    )
+    .eq("employee_id", employee.id)
+    .limit(5)
+    .order("created_at", { ascending: false })
 
   return (
     <div className="flex-1 space-y-6">
@@ -84,22 +82,24 @@ export default async function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentRequests.map((request) => (
+                {recentRequests?.map((request) => (
                   <TableRow key={request.id}>
                     <TableCell className="font-medium">{request.id}</TableCell>
-                    <TableCell>{request.type}</TableCell>
-                    <TableCell>{request.date}</TableCell>
+                    <TableCell>{request.leave_types?.leave_type}</TableCell>
+                    <TableCell>
+                      {new Date(request.date).toISOString().split("T")[0]}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          request.status === "Approved"
+                          request.status.status_name === "approved"
                             ? "default"
-                            : request.status === "Pending"
+                            : request.status.status_name === "pending"
                               ? "secondary"
                               : "destructive"
                         }
                       >
-                        {request.status}
+                        {request.status.status_name}
                       </Badge>
                     </TableCell>
                   </TableRow>

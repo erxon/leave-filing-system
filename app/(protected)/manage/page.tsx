@@ -1,7 +1,4 @@
-import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
-import Link from "next/link"
-import { IconArrowBack } from "@tabler/icons-react"
 import Unauthorized from "@/components/unauthorized"
 import { redirect } from "next/navigation"
 

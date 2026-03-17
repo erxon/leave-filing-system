@@ -24,5 +24,5 @@ export default async function Page() {
     return <Unauthorized />
   }
 
-  return <Administrator user={user} administrator={administrator} />
+  return <Administrator administrator={administrator} />
 }

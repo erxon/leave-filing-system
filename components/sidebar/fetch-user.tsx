@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server"
 import { NavUser } from "./nav-user"
 import { getEmployee } from "@/app/auth/actions"
 

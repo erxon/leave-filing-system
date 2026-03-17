@@ -9,12 +9,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteUser, getManager } from "../../actions"
+import { deleteUser } from "../../actions"
 import { Input } from "@/components/ui/input"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 import DeleteAlert from "@/components/alerts/delete-alert"
-import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 
 // This type is used to define the shape of our data.
@@ -134,7 +133,6 @@ export const columns: ColumnDef<Employee>[] = [
 function Menu({ employee }: { employee: Employee }) {
   const [open, setOpen] = useState<boolean>(false)
   const [isLoading, setLoading] = useState<boolean>(false)
-  const router = useRouter()
 
   const handleDelete = async () => {
     setLoading(true)
@@ -143,7 +141,7 @@ function Menu({ employee }: { employee: Employee }) {
       setOpen(false)
       setLoading(false)
       toast.success("User deleted successfully")
-    } catch (error) {
+    } catch {
       setLoading(false)
       toast.error("Failed to delete user")
     }

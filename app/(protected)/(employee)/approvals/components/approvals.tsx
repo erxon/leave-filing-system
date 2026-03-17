@@ -3,6 +3,18 @@ import { DataTable } from "./data-table"
 import { createClient } from "@/lib/supabase/server"
 import { getEmployee } from "@/app/auth/actions"
 
+interface LeaveWithDetails {
+  id: string
+  employee_id: string
+  date: string
+  duration: string
+  reason: string
+  remarks: string | null
+  leave_types: { leave_type: string } | null
+  status: { status_name: string } | null
+  employee_profiles: { first_name: string; last_name: string } | null
+}
+
 export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
   const supabase = await createClient()
   const employee = await getEmployee()
@@ -24,21 +36,21 @@ export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
     return []
   }
 
-  const formattedLeaves: LeaveApprovalItem[] = (leaves || []).map(
-    (leave: any) => ({
-      id: leave.id,
-      employee_id: leave.employee_id,
-      employee_name: leave.employee_profiles
-        ? `${leave.employee_profiles.first_name || ""} ${leave.employee_profiles.last_name || ""}`.trim()
-        : "Unknown",
-      date: new Date(leave.date),
-      duration: leave.duration,
-      reason: leave.reason,
-      type: leave.leave_types?.leave_type || "Unknown",
-      status: leave.status?.status_name || "Unknown",
-      remarks: leave.remarks,
-    })
-  )
+  const formattedLeaves: LeaveApprovalItem[] = (
+    (leaves as unknown as LeaveWithDetails[]) || []
+  ).map((leave) => ({
+    id: leave.id,
+    employee_id: leave.employee_id,
+    employee_name: leave.employee_profiles
+      ? `${leave.employee_profiles.first_name || ""} ${leave.employee_profiles.last_name || ""}`.trim()
+      : "Unknown",
+    date: new Date(leave.date),
+    duration: leave.duration,
+    reason: leave.reason,
+    type: leave.leave_types?.leave_type || "Unknown",
+    status: leave.status?.status_name || "Unknown",
+    remarks: leave.remarks,
+  }))
 
   return formattedLeaves
 }

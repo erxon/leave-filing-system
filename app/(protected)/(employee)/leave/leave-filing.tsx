@@ -1,19 +1,6 @@
 "use client"
 
-import { useMediaQuery } from "@/hooks/use-media-query"
-import LeaveHistory from "../components/leave-history/leave-history"
-import { LeaveHistoryItem } from "../components/leave-history/columns"
-import { Employee } from "../../admin/components/user-creation/ui/users/columns"
-
-export default function LeaveFiling({
-  data,
-  employee,
-}: {
-  data: LeaveHistoryItem[] // Updated from Payment
-  employee: Employee
-}) {
-  const isMobile = useMediaQuery("(max-width: 1380px)")
-
+export default function LeaveFiling() {
   return (
     <div>
       <div className="lg:grid lg:grid-cols-10 lg:gap-4">

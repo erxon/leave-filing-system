@@ -51,7 +51,7 @@ export default function QuickLeave() {
           description: result.message,
         })
       }
-    } catch (error) {
+    } catch {
       toast("Error", {
         description: "Something went wrong, please try again later",
         className: "bg-red-500 text-white",

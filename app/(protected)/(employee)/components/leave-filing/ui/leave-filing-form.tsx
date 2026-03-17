@@ -1,18 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import LeaveType from "./leave-type"
-import SelectSupervisor from "./select-supervisor"
 import { Input } from "@/components/ui/input"
-import { DatePicker } from "./date-picker"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import MultipleDatePicker from "./multiple-date-picker"
 import {
   Dialog,
@@ -41,7 +30,7 @@ export default function LeaveFilingForm({
       data: { user },
     } = await supabase.auth.getUser()
     if (user) {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("employee_profiles")
         .select("*")
         .eq("id", user.id)

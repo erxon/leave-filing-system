@@ -16,7 +16,7 @@ export default async function RemainingLeaves() {
   const employee = await getEmployee()
   const supabase = await createClient()
 
-  const { data: remainingLeaves, error } = await supabase
+  const { data: remainingLeaves } = await supabase
     .from("remaining_leaves")
     .select(
       `
@@ -58,10 +58,16 @@ export default async function RemainingLeaves() {
             <leave.icon className={`h-4 w-4 ${leave.color}`} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div
+              className={`text-2xl font-bold ${
+                leave.remaining_leaves === 0 && "text-red-500"
+              }`}
+            >
               {leave.remaining_leaves} Days
             </div>
-            <p className="text-xs text-muted-foreground">Remaining balance</p>
+            <p className="text-xs text-muted-foreground">
+              Remaining leave balance
+            </p>
           </CardContent>
         </Card>
       ))}

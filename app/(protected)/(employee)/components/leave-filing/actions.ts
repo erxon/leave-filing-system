@@ -2,20 +2,20 @@
 
 import { Leave } from "@/lib/types"
 import { createClient } from "@/lib/supabase/server"
-import { getEmployee, getUser } from "@/app/auth/actions"
+import { getEmployee } from "@/app/auth/actions"
 
 export async function fileSingleLeave(leave: Leave) {
   try {
     const supabase = await createClient()
 
     const employee = await getEmployee()
-    const { data: leaveTypes, error: leaveTypesError } = await supabase
+    const { data: leaveTypes } = await supabase
       .from("leave_types")
       .select("*")
 
     const leaveType = leaveTypes?.find((lt) => lt.code === leave.leave_type)
 
-    const { data: remainingLeaves, error: remainingLeavesError } =
+    const { data: remainingLeaves } =
       await supabase
         .from("remaining_leaves")
         .select("*")
@@ -40,7 +40,7 @@ export async function fileSingleLeave(leave: Leave) {
     const dateISO = leave.date.toISOString()
 
     // Check if the date is already in the database
-    const { data: existingLeave, error: existingLeaveError } = await supabase
+    const { data: existingLeave } = await supabase
       .from("leaves")
       .select("*")
       .eq("date", dateISO)

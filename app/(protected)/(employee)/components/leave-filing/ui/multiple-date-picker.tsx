@@ -5,7 +5,7 @@ import { DatePicker } from "./date-picker"
 import LeaveType from "./leave-type"
 import { Plus, X } from "lucide-react"
 import { addDays, startOfToday } from "date-fns"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import DurationSelect from "./duration-select"
 
 interface Leaves {

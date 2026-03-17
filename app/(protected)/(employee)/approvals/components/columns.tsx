@@ -1,6 +1,6 @@
 "use client"
 
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, Row } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
@@ -95,46 +95,48 @@ export const columns: ColumnDef<LeaveApprovalItem>[] = [
   {
     accessorKey: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const [rejectOpen, setRejectOpen] = useState(false)
-      const [approveOpen, setApproveOpen] = useState(false)
-
-      return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setApproveOpen(true)}>
-                Approve
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setRejectOpen(true)}>
-                Reject
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <RejectDialog
-            id={row.original.id}
-            open={rejectOpen}
-            setOpen={setRejectOpen}
-          />
-          <ApproveDialog
-            id={row.original.id}
-            employee_id={row.original.employee_id}
-            open={approveOpen}
-            setOpen={setApproveOpen}
-          />
-        </>
-      )
-    },
+    cell: ({ row }) => <ActionCell row={row} />,
   },
 ]
+
+function ActionCell({ row }: { row: Row<LeaveApprovalItem> }) {
+  const [rejectOpen, setRejectOpen] = useState(false)
+  const [approveOpen, setApproveOpen] = useState(false)
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setApproveOpen(true)}>
+            Approve
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setRejectOpen(true)}>
+            Reject
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <RejectDialog
+        id={row.original.id}
+        open={rejectOpen}
+        setOpen={setRejectOpen}
+      />
+      <ApproveDialog
+        id={row.original.id}
+        employee_id={row.original.employee_id}
+        open={approveOpen}
+        setOpen={setApproveOpen}
+      />
+    </>
+  )
+}
 
 function ApproveDialog({
   employee_id,
@@ -147,10 +149,7 @@ function ApproveDialog({
   open: boolean
   setOpen: (open: boolean) => void
 }) {
-  const [loading, setLoading] = useState(false)
-
   const handleSubmit = async () => {
-    setLoading(true)
     try {
       const result = await approveLeave(id, employee_id)
 
@@ -160,11 +159,13 @@ function ApproveDialog({
         toast.success("Leave was approved")
         setOpen(false)
       }
-    } catch (error: any) {
-      toast.error(error.message)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        toast.error("An unknown error occurred")
+      }
     }
-
-    setLoading(false)
   }
 
   return (
@@ -199,11 +200,8 @@ function RejectDialog({
   setOpen: (open: boolean) => void
 }) {
   const [remarks, setRemarks] = useState("")
-  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async () => {
-    setLoading(true)
-
     const result = await rejectLeave(id, remarks)
 
     if (result.error) {
@@ -213,8 +211,6 @@ function RejectDialog({
       toast.success("Leave was rejected")
       setOpen(false)
     }
-
-    setLoading(false)
   }
 
   return (
