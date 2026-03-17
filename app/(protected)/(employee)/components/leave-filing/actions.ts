@@ -15,8 +15,25 @@ export async function fileSingleLeave(leave: Leave) {
 
     const leaveType = leaveTypes?.find((lt) => lt.code === leave.leave_type)
 
+    const { data: remainingLeaves, error: remainingLeavesError } =
+      await supabase
+        .from("remaining_leaves")
+        .select("*")
+        .eq("employee_id", employee?.id)
+        .eq(
+          "leave_type",
+          leaveTypes?.find((lt) => lt.code === leave.leave_type)?.id
+        )
+        .single()
+
     if (!leaveType) {
       throw new Error("Invalid leave type")
+    }
+
+    if (remainingLeaves.remaining_leaves === 0) {
+      throw new Error(
+        `Can't proceed filing the leave, employee has no remaining ${leaveType.leave_type}`
+      )
     }
 
     // Convert date to ISO

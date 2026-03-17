@@ -126,6 +126,7 @@ export const columns: ColumnDef<LeaveApprovalItem>[] = [
           />
           <ApproveDialog
             id={row.original.id}
+            employee_id={row.original.employee_id}
             open={approveOpen}
             setOpen={setApproveOpen}
           />
@@ -136,10 +137,12 @@ export const columns: ColumnDef<LeaveApprovalItem>[] = [
 ]
 
 function ApproveDialog({
+  employee_id,
   id,
   open,
   setOpen,
 }: {
+  employee_id: string
   id: string
   open: boolean
   setOpen: (open: boolean) => void
@@ -148,15 +151,17 @@ function ApproveDialog({
 
   const handleSubmit = async () => {
     setLoading(true)
+    try {
+      const result = await approveLeave(id, employee_id)
 
-    const result = await approveLeave(id)
-
-    if (result.error) {
-      console.error("Error approving leave:", result.error)
-      toast.error("Something went wrong")
-    } else {
-      toast.success("Leave was approved")
-      setOpen(false)
+      if (!result.success) {
+        toast.error("Something went wrong")
+      } else {
+        toast.success("Leave was approved")
+        setOpen(false)
+      }
+    } catch (error: any) {
+      toast.error(error.message)
     }
 
     setLoading(false)

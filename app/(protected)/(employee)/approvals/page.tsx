@@ -3,8 +3,23 @@ import { ApprovalsCalendar } from "./components/approvals-calendar"
 import { getApprovalsData } from "./components/approvals"
 import { Suspense } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getEmployee } from "@/app/auth/actions"
 
 export default async function Approvals() {
+  const employee = await getEmployee()
+
+  if (employee.role !== 2) {
+    return (
+      <div className="flex-1 space-y-4">
+        <div className="flex items-center justify-center">
+          <p className="text-muted-foreground">
+            You do not have permission to access this page.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   const data = await getApprovalsData()
 
   return (

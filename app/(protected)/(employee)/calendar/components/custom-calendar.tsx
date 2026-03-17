@@ -164,18 +164,18 @@ export default function CustomCalendar({
                       <TooltipTrigger asChild>
                         <div
                           className={`cursor-pointer truncate rounded-md p-1 px-2 text-xs ${
-                            event.type === "Sick Leave" &&
+                            event.type.toLowerCase() === "sick leave" &&
                             event.status === "approved" &&
                             "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300"
                           } ${
-                            event.type === "Vacation Leave" &&
+                            event.type.toLowerCase() === "vacation leave" &&
                             event.status === "approved" &&
                             "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                           } ${
-                            event.status === "pending" &&
+                            event.status.toLowerCase() === "pending" &&
                             "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
                           } ${
-                            event.status === "disapproved" &&
+                            event.status.toLowerCase() === "disapproved" &&
                             "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                           }`}
                         >
