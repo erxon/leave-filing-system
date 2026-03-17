@@ -1,11 +1,10 @@
-import { columns, LeaveHistoryItem } from "./columns"
+import { columns, LeaveApprovalItem } from "./columns"
 import { DataTable } from "./data-table"
 import { createClient } from "@/lib/supabase/server"
 import { getEmployee } from "@/app/auth/actions"
 
-export async function getData(): Promise<LeaveHistoryItem[]> {
+export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
   const supabase = await createClient()
-
   const employee = await getEmployee()
 
   const { data: leaves, error } = await supabase
@@ -18,24 +17,25 @@ export async function getData(): Promise<LeaveHistoryItem[]> {
       employee_profiles!leaves_employee_id_fkey ( first_name, last_name )
       `
     )
-    .eq("employee_id", employee.id)
+    .eq("approving_manager_id", employee.id)
 
   if (error) {
+    console.error("Error fetching approvals:", error)
     return []
   }
 
-  // Supabase returns nested objects for foregin keys and string for dates.
-  // We need to map them to match LeaveHistoryItem.
-
-  const formattedLeaves: LeaveHistoryItem[] = (leaves || []).map(
+  const formattedLeaves: LeaveApprovalItem[] = (leaves || []).map(
     (leave: any) => ({
       id: leave.id,
       employee_id: leave.employee_id,
+      employee_name: leave.employee_profiles
+        ? `${leave.employee_profiles.first_name || ""} ${leave.employee_profiles.last_name || ""}`.trim()
+        : "Unknown",
       date: new Date(leave.date),
       duration: leave.duration,
       reason: leave.reason,
-      type: leave.leave_types.leave_type,
-      status: leave.status.status_name,
+      type: leave.leave_types?.leave_type || "Unknown",
+      status: leave.status?.status_name || "Unknown",
       remarks: leave.remarks,
     })
   )
@@ -43,11 +43,15 @@ export async function getData(): Promise<LeaveHistoryItem[]> {
   return formattedLeaves
 }
 
-interface LeaveHistoryProps {
-  data: LeaveHistoryItem[]
+interface ApprovalsListProps {
+  initialData?: LeaveApprovalItem[]
 }
 
-export default function LeaveHistory({ data }: LeaveHistoryProps) {
+export default async function ApprovalsList({
+  initialData,
+}: ApprovalsListProps) {
+  const data = initialData || (await getApprovalsData())
+
   return (
     <div className="py-4">
       <DataTable columns={columns} data={data} />

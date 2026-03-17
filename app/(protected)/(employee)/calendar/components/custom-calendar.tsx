@@ -22,13 +22,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export type ApprovedLeave = {
+export type Leave = {
   id: string
   employeeName: string
   type: "Sick Leave" | "Vacation Leave"
   startDate: Date
   endDate: Date
   duration: "full-day" | "half-day"
+  status: string
 }
 
 export type HolidayEvent = {
@@ -41,7 +42,7 @@ export default function CustomCalendar({
   events,
   holidays = [],
 }: {
-  events: ApprovedLeave[]
+  events: Leave[]
   holidays?: HolidayEvent[]
 }) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
@@ -59,7 +60,7 @@ export default function CustomCalendar({
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
   // Simple helper to check if a date falls within an event's range (inclusive)
-  const isDateInEvent = (date: Date, event: ApprovedLeave) => {
+  const isDateInEvent = (date: Date, event: Leave) => {
     // Zero out time for comparison
     const targetDate = new Date(date).setHours(0, 0, 0, 0)
     const startDate = new Date(event.startDate).setHours(0, 0, 0, 0)
@@ -70,12 +71,15 @@ export default function CustomCalendar({
   // Helper to check if a date is a holiday
   const getHolidaysForDate = (date: Date) => {
     const targetDate = new Date(date).setHours(0, 0, 0, 0)
-    return holidays.filter((h) => new Date(h.date).setHours(0, 0, 0, 0) === targetDate)
+    return holidays.filter(
+      (h) => new Date(h.date).setHours(0, 0, 0, 0) === targetDate
+    )
   }
 
   return (
-    <div className="flex w-full flex-col h-full rounded-xl border bg-card p-4 shadow-sm space-y-4">
+    <div className="flex h-full w-full flex-col space-y-4 rounded-xl border bg-card p-4 shadow-sm">
       {/* Header */}
+
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold">
           {format(currentMonth, "MMMM yyyy")}
@@ -103,7 +107,7 @@ export default function CustomCalendar({
       </div>
 
       {/* Days Grid */}
-      <div className="flex-1 overflow-hidden grid auto-rows-fr grid-cols-7 gap-px rounded-md bg-muted">
+      <div className="grid flex-1 auto-rows-fr grid-cols-7 gap-px overflow-hidden rounded-md bg-muted">
         <TooltipProvider>
           {daysInGrid.map((day, idx) => {
             const isCurrentMonth = isSameMonth(day, monthStart)
@@ -123,9 +127,7 @@ export default function CustomCalendar({
                 <div className="mb-1 flex items-start justify-between">
                   <span
                     className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-medium ${
-                      isCurrentDay
-                        ? "bg-primary text-primary-foreground"
-                        : ""
+                      isCurrentDay ? "bg-primary text-primary-foreground" : ""
                     }`}
                   >
                     {format(day, "d")}
@@ -144,8 +146,8 @@ export default function CustomCalendar({
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="text-sm">
-                          <p className="font-bold flex items-center space-x-1">
-                            <Star className="h-4 w-4 text-purple-500 mr-1" />
+                          <p className="flex items-center space-x-1 font-bold">
+                            <Star className="mr-1 h-4 w-4 text-purple-500" />
                             {holiday.name}
                           </p>
                           <p className="mt-1 text-xs text-muted-foreground">
@@ -162,9 +164,19 @@ export default function CustomCalendar({
                       <TooltipTrigger asChild>
                         <div
                           className={`cursor-pointer truncate rounded-md p-1 px-2 text-xs ${
-                            event.type === "Sick Leave"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                              : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                            event.type === "Sick Leave" &&
+                            event.status === "approved" &&
+                            "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300"
+                          } ${
+                            event.type === "Vacation Leave" &&
+                            event.status === "approved" &&
+                            "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                          } ${
+                            event.status === "pending" &&
+                            "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                          } ${
+                            event.status === "disapproved" &&
+                            "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                           }`}
                         >
                           {event.employeeName}

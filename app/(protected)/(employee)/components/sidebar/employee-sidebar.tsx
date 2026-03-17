@@ -4,15 +4,17 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { FilePlus, History, Calendar, Gauge } from "lucide-react"
+import { FilePlus, History, Calendar, Gauge, Users } from "lucide-react"
 import Link from "next/link"
 import FetchUser from "@/components/sidebar/fetch-user"
 import { Suspense } from "react"
+import { getEmployee } from "@/app/auth/actions"
 
 const menus = [
   {
@@ -37,7 +39,22 @@ const menus = [
   },
 ]
 
-export function EmployeeSidebar() {
+const managementMenus = [
+  {
+    title: "Direct reports",
+    url: "/direct-reports",
+    icon: Users,
+  },
+  {
+    title: "Approvals",
+    url: "/approvals",
+    icon: Calendar,
+  },
+]
+
+export async function EmployeeSidebar() {
+  const employee = await getEmployee()
+
   return (
     <>
       <Sidebar collapsible="icon">
@@ -58,6 +75,24 @@ export function EmployeeSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+          {employee.role === 2 && (
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarGroupLabel>Management</SidebarGroupLabel>
+                <SidebarMenu>
+                  {managementMenus.map((menu) => (
+                    <SidebarMenuItem key={menu.title}>
+                      <SidebarMenuButton tooltip={menu.title} asChild>
+                        <Link href={menu.url}>
+                          <menu.icon /> {menu.title}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>

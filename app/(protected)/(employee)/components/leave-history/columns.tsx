@@ -1,16 +1,17 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 export type LeaveHistoryItem = {
   id: string
-  type: "Sick Leave" | "Vacation Leave" | "Emergency Leave" | "Maternity Leave" | "Paternity Leave"
+  employee_id: string
   date: Date
-  duration: "full-day" | "half-day"
+  duration: string
   reason: string
-  status: "Pending" | "Approved" | "Rejected"
 }
 
 export const columns: ColumnDef<LeaveHistoryItem>[] = [
@@ -19,38 +20,62 @@ export const columns: ColumnDef<LeaveHistoryItem>[] = [
     header: "Request ID",
   },
   {
-    accessorKey: "type",
-    header: "Leave Type",
-  },
-  {
     accessorKey: "date",
     header: "Date",
     cell: ({ row }) => {
       return format(row.getValue("date"), "MMM d, yyyy")
-    }
+    },
   },
   {
     accessorKey: "duration",
     header: "Duration",
     cell: ({ row }) => {
       return <span className="capitalize">{row.getValue("duration")}</span>
-    }
+    },
   },
   {
     accessorKey: "reason",
     header: "Reason",
   },
   {
+    accessorKey: "type",
+    header: "Type",
+  },
+  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status: string = row.getValue("status")
-      let variant: "default" | "secondary" | "destructive" = "secondary"
-      
-      if (status === "Approved") variant = "default"
-      if (status === "Rejected") variant = "destructive"
+      const status = row.getValue("status") as string
 
-      return <Badge variant={variant}>{status}</Badge>
-    }
+      if (status === "approved") {
+        return <Badge variant="default">{status}</Badge>
+      } else if (status === "pending") {
+        return <Badge variant="secondary">{status}</Badge>
+      } else if (status === "disapproved") {
+        return <Badge variant="destructive">{status}</Badge>
+      }
+    },
+  },
+  {
+    accessorKey: "remarks",
+    header: "Remarks",
+    cell: ({ row }) => {
+      return row.getValue("remarks")
+    },
+  },
+  {
+    accessorKey: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      return (
+        <Button
+          variant={"ghost"}
+          size="icon-sm"
+          onClick={() => console.log(row.original)}
+        >
+          <MoreHorizontal />
+        </Button>
+      )
+    },
   },
 ]

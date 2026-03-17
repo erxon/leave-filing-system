@@ -1,7 +1,7 @@
 import { getEmployee } from "@/app/auth/actions"
 import { redirect } from "next/navigation"
 import CustomCalendar, {
-  ApprovedLeave,
+  Leave,
   HolidayEvent,
 } from "./components/custom-calendar"
 import { HolidayCard } from "./components/holiday-card"
@@ -17,7 +17,7 @@ export default async function CalendarPage() {
   // --- Mock Data ---
   const currentMonthStart = startOfMonth(new Date())
 
-  const mockLeaves: ApprovedLeave[] = [
+  const mockLeaves: Leave[] = [
     {
       id: "leave-1",
       employeeName: "Alice Smith",
@@ -25,6 +25,7 @@ export default async function CalendarPage() {
       duration: "full-day",
       startDate: new Date(),
       endDate: addDays(new Date(), 2),
+      status: "approved",
     },
     {
       id: "leave-2",
@@ -33,6 +34,7 @@ export default async function CalendarPage() {
       duration: "half-day",
       startDate: subDays(new Date(), 5),
       endDate: subDays(new Date(), 4),
+      status: "approved",
     },
     {
       id: "leave-3",
@@ -41,6 +43,7 @@ export default async function CalendarPage() {
       duration: "full-day",
       startDate: addDays(new Date(), 10),
       endDate: addDays(new Date(), 14),
+      status: "approved",
     },
     {
       id: "leave-4",
@@ -49,6 +52,7 @@ export default async function CalendarPage() {
       duration: "full-day",
       startDate: addDays(new Date(), -1),
       endDate: addDays(new Date(), 3),
+      status: "approved",
     },
   ]
 
@@ -83,6 +87,33 @@ export default async function CalendarPage() {
       </div>
 
       {/* Updated Layout: CSS Grid for Side-by-Side */}
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex items-center space-x-2">
+          <div className="rounded-lg bg-cyan-100 p-2 text-xs dark:bg-cyan-900/30 dark:text-cyan-100">
+            Approved Sick Leave
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="rounded-lg bg-green-100 p-2 text-xs dark:bg-green-900/30 dark:text-green-100">
+            Approved Vacation Leave
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="rounded-lg bg-yellow-100 p-2 text-xs dark:bg-yellow-900/30 dark:text-yellow-100">
+            Pending Leave
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="rounded-lg bg-red-100 p-2 text-xs dark:bg-red-900/30 dark:text-red-100">
+            Rejected Leave
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="rounded-lg bg-purple-100 p-2 text-xs dark:bg-purple-900/30 dark:text-purple-100">
+            Holiday
+          </div>
+        </div>
+      </div>
       <div className="grid min-h-[600px] flex-1 grid-cols-1 gap-6 pb-10 lg:grid-cols-4">
         {/* Main Calendar takes up 3 columns */}
         <div className="h-full lg:col-span-3">

@@ -10,7 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <EmployeeSidebar />
         <SidebarInset>
           <SiteHeader />
-          <main className="px-16 py-8">{children}</main>
+          <main className="px-4 py-8 md:px-16">{children}</main>
         </SidebarInset>
       </TooltipProvider>
     </SidebarProvider>
