@@ -8,7 +8,7 @@ import { getEmployee } from "@/app/auth/actions"
 export default async function Approvals() {
   const employee = await getEmployee()
 
-  if (employee.role !== 2) {
+  if (!employee || employee.role !== 2) {
     return (
       <div className="flex-1 space-y-4">
         <div className="flex items-center justify-center">
