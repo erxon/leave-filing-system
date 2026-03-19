@@ -174,9 +174,11 @@ export async function pendingLeave(id: string) {
 
     revalidatePath("/approvals")
     return { success: true }
-  } catch (error: any) {
-    console.error("Error setting leave to pending:", error)
-    return { success: false, message: error.message }
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, message: error.message }
+    }
+    return { success: false, message: "An unknown error occurred" }
   }
 }
 
@@ -220,9 +222,11 @@ export async function removeLeave(id: string) {
 
     revalidatePath("/approvals")
     return { success: true }
-  } catch (error: any) {
-    console.error("Error removing leave:", error)
-    return { success: false, message: error.message }
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, message: error.message }
+    }
+    return { success: false, message: "An unknown error occurred" }
   }
 }
 

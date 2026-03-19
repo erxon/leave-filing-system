@@ -22,17 +22,14 @@ export default function ComboboxFilter({
     string[]
   >(["all"])
 
-  const fetchApprovingManagerEmployees = async () => {
-    const employees = await approvingMangerEmployees()
-    setApprovingManagerEmployees(
-      employees.map(
-        (employee) => `${employee.first_name} ${employee.last_name}`
-      )
-    )
-  }
-
   useEffect(() => {
-    fetchApprovingManagerEmployees()
+    approvingMangerEmployees().then((employees) => {
+      setApprovingManagerEmployees(
+        employees.map(
+          (employee) => `${employee.first_name} ${employee.last_name}`
+        )
+      )
+    })
   }, [])
 
   return (

@@ -1,6 +1,6 @@
 "use client"
 
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, Row } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
@@ -21,7 +21,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useState } from "react"
 import { recallLeaveRequest } from "./actions"
@@ -33,6 +32,32 @@ export type LeaveHistoryItem = {
   date: Date
   duration: string
   reason: string
+}
+
+const ActionCell = ({ row }: { row: Row<LeaveHistoryItem> }) => {
+  const [open, setOpen] = useState<boolean>(false)
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant={"ghost"} size="icon-sm">
+            <MoreHorizontal />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuItem
+            disabled={row.getValue("status") !== "approved"}
+            onClick={() => setOpen(true)}
+          >
+            Recall
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <RecallDialog id={row.getValue("id")} open={open} setOpen={setOpen} />
+    </>
+  )
 }
 
 export const columns: ColumnDef<LeaveHistoryItem>[] = [
@@ -89,31 +114,7 @@ export const columns: ColumnDef<LeaveHistoryItem>[] = [
   {
     accessorKey: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const [open, setOpen] = useState<boolean>(false)
-
-      return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant={"ghost"} size="icon-sm">
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                disabled={row.getValue("status") !== "approved"}
-                onClick={() => setOpen(true)}
-              >
-                Recall
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <RecallDialog id={row.getValue("id")} open={open} setOpen={setOpen} />
-        </>
-      )
-    },
+    cell: ActionCell,
   },
 ]
 
@@ -132,7 +133,7 @@ function RecallDialog({
     try {
       setLoading(true)
 
-      const result = await recallLeaveRequest(id)
+      await recallLeaveRequest(id)
 
       setLoading(false)
       setOpen(false)
