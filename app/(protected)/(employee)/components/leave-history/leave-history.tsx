@@ -30,6 +30,7 @@ export async function getData(): Promise<LeaveHistoryItem[]> {
       `
     )
     .eq("employee_id", employee.id)
+    .order("created_at", { ascending: false })
 
   if (error) {
     return []

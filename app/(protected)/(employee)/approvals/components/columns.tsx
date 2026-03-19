@@ -3,28 +3,24 @@
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
-import { approveLeave, rejectLeave } from "../actions"
-import { toast } from "sonner"
+import {
+  ApproveDialog,
+  PendingDialog,
+  RejectDialog,
+  RemoveDialog,
+} from "./dialogs/action-dialogs"
 
 export type LeaveApprovalItem = {
   id: string
@@ -49,7 +45,18 @@ export const columns: ColumnDef<LeaveApprovalItem>[] = [
   },
   {
     accessorKey: "date",
-    header: "Date",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Date
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+
     cell: ({ row }) => {
       return format(row.getValue("date"), "MMM d, yyyy")
     },
@@ -79,7 +86,7 @@ export const columns: ColumnDef<LeaveApprovalItem>[] = [
         return <Badge variant="default">{status}</Badge>
       } else if (status === "pending") {
         return <Badge variant="secondary">{status}</Badge>
-      } else if (status === "rejected") {
+      } else if (status === "disapproved") {
         return <Badge variant="destructive">{status}</Badge>
       }
       return <Badge variant="outline">{status}</Badge>
@@ -102,6 +109,8 @@ export const columns: ColumnDef<LeaveApprovalItem>[] = [
 function ActionCell({ row }: { row: Row<LeaveApprovalItem> }) {
   const [rejectOpen, setRejectOpen] = useState(false)
   const [approveOpen, setApproveOpen] = useState(false)
+  const [pendingOpen, setPendingOpen] = useState(false)
+  const [removeOpen, setRemoveOpen] = useState(false)
 
   return (
     <>
@@ -115,12 +124,33 @@ function ActionCell({ row }: { row: Row<LeaveApprovalItem> }) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setApproveOpen(true)}>
-            Approve
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setRejectOpen(true)}>
-            Reject
-          </DropdownMenuItem>
+          {row.original.status === "pending" && (
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setApproveOpen(true)}>
+                Approve
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setRejectOpen(true)}>
+                Reject
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          )}
+          {row.original.status === "approved" && (
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setPendingOpen(true)}>
+                Pending
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          )}
+          {row.original.status === "cancelled" && (
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setRemoveOpen(true)}>
+                Remove
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setPendingOpen(true)}>
+                Pending
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       <RejectDialog
@@ -130,116 +160,19 @@ function ActionCell({ row }: { row: Row<LeaveApprovalItem> }) {
       />
       <ApproveDialog
         id={row.original.id}
-        employee_id={row.original.employee_id}
         open={approveOpen}
         setOpen={setApproveOpen}
       />
+      <PendingDialog
+        id={row.original.id}
+        open={pendingOpen}
+        setOpen={setPendingOpen}
+      />
+      <RemoveDialog
+        id={row.original.id}
+        open={removeOpen}
+        setOpen={setRemoveOpen}
+      />
     </>
-  )
-}
-
-function ApproveDialog({
-  employee_id,
-  id,
-  open,
-  setOpen,
-}: {
-  employee_id: string
-  id: string
-  open: boolean
-  setOpen: (open: boolean) => void
-}) {
-  const handleSubmit = async () => {
-    try {
-      const result = await approveLeave(id, employee_id)
-
-      if (!result.success) {
-        toast.error("Something went wrong")
-      } else {
-        toast.success("Leave was approved")
-        setOpen(false)
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message)
-      } else {
-        toast.error("An unknown error occurred")
-      }
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Approve Leave</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to approve this leave request?
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button variant="default" onClick={handleSubmit}>
-            Approve
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function RejectDialog({
-  id,
-  open,
-  setOpen,
-}: {
-  id: string
-  open: boolean
-  setOpen: (open: boolean) => void
-}) {
-  const [remarks, setRemarks] = useState("")
-
-  const handleSubmit = async () => {
-    const result = await rejectLeave(id, remarks)
-
-    if (result.error) {
-      console.error("Error rejecting leave:", result.error)
-      toast.error("Something went wrong")
-    } else {
-      toast.success("Leave was rejected")
-      setOpen(false)
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Reject Leave</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to reject this leave request?
-          </DialogDescription>
-        </DialogHeader>
-        <div>
-          <Textarea
-            placeholder="Remarks"
-            rows={4}
-            className="resize-none"
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-          />
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={handleSubmit}>
-            Reject
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   )
 }
