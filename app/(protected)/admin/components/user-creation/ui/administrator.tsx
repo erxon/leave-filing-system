@@ -15,8 +15,13 @@ export default function Administrator({
   return (
     <>
       <div className="px-8 py-4">
-        <div className="flex justify-between">
-          <h2 className="text-md mb-8 font-semibold">Manage Users</h2>
+        <div className="mb-8 flex justify-between">
+          <div>
+            <h2 className="mb-2 text-xl font-semibold">Manage Users</h2>
+            <p className="text-sm text-muted-foreground">
+              Create users or import them. Generate temporary passwords
+            </p>
+          </div>
           <Button>
             <Import />
             Import
