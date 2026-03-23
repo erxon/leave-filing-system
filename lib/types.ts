@@ -4,7 +4,9 @@ export interface EmployeeProfile {
   first_name: string
   last_name: string
   manager_id: string
-  role: string
+  manager_name: string
+  role: number
+  position_id: string
   temp_password?: string
   company_id: string
   avatar_url?: string
