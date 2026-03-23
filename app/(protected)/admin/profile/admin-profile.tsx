@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { EmployeeProfile } from "@/lib/types"
 import { getAvatar, updatePersonalDetails, uploadAvatar } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -87,7 +86,7 @@ export default function AdminProfile({ admin }: { admin: AdminProfile }) {
         toast.success("Profile picture updated successfully!")
         setSelectedFile(null)
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred.")
     } finally {
       setIsUploading(false)

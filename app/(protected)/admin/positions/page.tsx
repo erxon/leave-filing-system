@@ -1,18 +1,3 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Search, Plus, Filter, MoreVertical, Trash2, Edit2 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
 import PositionCard from "./components/position-card"
 import NewPosition from "./components/new-position"
 import PositionFilters from "./components/position-filters"
@@ -21,6 +6,7 @@ import {
   getDepartments,
   getPositions,
 } from "./components/actions"
+import { Position } from "./components/positions.type"
 
 export default async function Page({
   searchParams,
@@ -29,12 +15,13 @@ export default async function Page({
 }) {
   const params = await searchParams
   const search = typeof params.search === "string" ? params.search : undefined
-  const departmentId = typeof params.department === "string" ? params.department : undefined
+  const departmentId =
+    typeof params.department === "string" ? params.department : undefined
 
   const companyId = await getCompanyId()
   const departments = companyId ? await getDepartments(companyId) : []
-  const positions = companyId 
-    ? await getPositions(companyId, search, departmentId) 
+  const positions = companyId
+    ? await getPositions(companyId, search, departmentId)
     : []
 
   return (
@@ -47,9 +34,9 @@ export default async function Page({
             Manage job titles and roles within the company.
           </p>
         </div>
-        <NewPosition 
-          companyId={companyId!} 
-          departments={departments} 
+        <NewPosition
+          companyId={companyId!}
+          departments={departments}
           positions={positions}
         />
       </div>
@@ -60,10 +47,10 @@ export default async function Page({
       {/* Positions Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {/* Position Card 1 */}
-        <PositionList 
-          companyId={companyId!} 
-          departments={departments} 
-          positions={positions} 
+        <PositionList
+          companyId={companyId!}
+          departments={departments}
+          positions={positions}
         />
       </div>
     </div>
@@ -77,7 +64,7 @@ async function PositionList({
 }: {
   companyId: string
   departments: { id: string; name: string }[]
-  positions: any[]
+  positions: Position[]
 }) {
   return (
     <>
