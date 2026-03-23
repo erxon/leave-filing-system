@@ -31,24 +31,29 @@ export function ProfileForm({ employee }: { employee: EmployeeProfile }) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
 
-  const fetchSignedUrlForAvatar = useCallback(async () => {
-    if (employee.avatar_url) {
-      try {
-        const data = await getSignedUrl({ filePath: employee.avatar_url })
-        if (data && data.signedUrl) {
-          setPreviewUrl(data.signedUrl)
-        } else if (data && data.error) {
-          console.error("Failed to fetch signed URL:", data.error)
+  useEffect(() => {
+    let isMounted = true
+    const fetchSignedUrl = async () => {
+      if (employee.avatar_url) {
+        try {
+          const data = await getSignedUrl({ filePath: employee.avatar_url })
+          if (isMounted && data && data.signedUrl) {
+            setPreviewUrl(data.signedUrl)
+          } else if (isMounted && data && data.error) {
+            console.error("Failed to fetch signed URL:", data.error)
+          }
+        } catch (err) {
+          console.error("Error in fetchSignedUrlForAvatar:", err)
         }
-      } catch (err) {
-        console.error("Error in fetchSignedUrlForAvatar:", err)
       }
     }
-  }, [employee.avatar_url])
 
-  useEffect(() => {
-    fetchSignedUrlForAvatar()
-  }, [fetchSignedUrlForAvatar])
+    fetchSignedUrl()
+
+    return () => {
+      isMounted = false
+    }
+  }, [employee.avatar_url])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

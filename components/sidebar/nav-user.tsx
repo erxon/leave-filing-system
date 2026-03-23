@@ -49,24 +49,29 @@ export function NavUser({
     router.push("/auth/login")
   }
 
-  const fetchSignedUrlForAvatar = useCallback(async () => {
-    if (user.avatar) {
-      try {
-        const data = await getSignedUrl({ filePath: user.avatar })
-        if (data && data.signedUrl) {
-          setAvatar(data.signedUrl)
-        } else if (data && data.error) {
-          console.error("Failed to fetch signed URL:", data.error)
+  useEffect(() => {
+    let isMounted = true
+    const fetchSignedUrl = async () => {
+      if (user.avatar) {
+        try {
+          const data = await getSignedUrl({ filePath: user.avatar })
+          if (isMounted && data && data.signedUrl) {
+            setAvatar(data.signedUrl)
+          } else if (isMounted && data && data.error) {
+            console.error("Failed to fetch signed URL:", data.error)
+          }
+        } catch (err) {
+          console.error("Error in fetchSignedUrlForAvatar:", err)
         }
-      } catch (err) {
-        console.error("Error in fetchSignedUrlForAvatar:", err)
       }
     }
-  }, [user.avatar])
 
-  useEffect(() => {
-    fetchSignedUrlForAvatar()
-  }, [fetchSignedUrlForAvatar])
+    fetchSignedUrl()
+
+    return () => {
+      isMounted = false
+    }
+  }, [user.avatar])
 
   return (
     <SidebarMenu>

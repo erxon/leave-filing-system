@@ -11,7 +11,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Slider } from "@radix-ui/react-slider" // Fallback if shadcn slider is missing or use standard input
+import type { Area, Point } from "react-easy-crop"
+
 
 interface ImageCropperProps {
   image: string | null
@@ -26,9 +27,10 @@ export function ImageCropper({
   onOpenChange,
   onCropComplete,
 }: ImageCropperProps) {
-  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
+
 
   const onCropChange = (crop: { x: number; y: number }) => {
     setCrop(crop)
@@ -39,11 +41,12 @@ export function ImageCropper({
   }
 
   const onCropAreaComplete = useCallback(
-    (realtedCroppedArea: any, croppedAreaPixels: any) => {
+    (_: Area, croppedAreaPixels: Area) => {
       setCroppedAreaPixels(croppedAreaPixels)
     },
     []
   )
+
 
   const handleCrop = async () => {
     if (!image || !croppedAreaPixels) return

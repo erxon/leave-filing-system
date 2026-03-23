@@ -1,0 +1,12 @@
+
+C:\Users\erics\Desktop\ETON\PROJECTS\1_PROJECTS (MAIN)\2026\online-leave-filing\components\profile\image-cropper.tsx
+  14:10  warning  'Slider' is defined but never used        @typescript-eslint/no-unused-vars
+  31:62  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:26  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\erics\Desktop\ETON\PROJECTS\1_PROJECTS (MAIN)\2026\online-leave-filing\components\sidebar\nav-user.tsx
+  27:10  warning  'useCallback' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 5 problems (3 errors, 2 warnings)
+
