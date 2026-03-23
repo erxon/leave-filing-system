@@ -1,15 +1,22 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { AdminSidebar } from "@/app/(protected)/admin/components/user-creation/ui/sidebar/admin-sidebar"
 import SiteHeader from "@/components/site-header"
+import { AdminSidebar } from "./components/sidebar/admin-sidebar"
+import AdminClientProvider from "./context/admin-client-provider"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <SidebarProvider>
-      <AdminSidebar />
-      <SidebarInset>
-        <SiteHeader />
-        {children}
-      </SidebarInset>
-    </SidebarProvider>
+    <AdminClientProvider>
+      <SidebarProvider>
+        <AdminSidebar />
+        <SidebarInset>
+          <SiteHeader />
+          <main className="px-8 py-4">{children}</main>
+        </SidebarInset>
+      </SidebarProvider>
+    </AdminClientProvider>
   )
 }

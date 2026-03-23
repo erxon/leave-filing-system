@@ -29,6 +29,15 @@ import {
 } from "@/components/ui/input-group"
 import { Eye } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
+import { getPositions } from "../../../positions/components/actions"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useEffect } from "react"
 
 const formSchema = z.object({
   employee_id: z.string().min(1, "Please fill the employee ID"),
@@ -40,6 +49,7 @@ const formSchema = z.object({
     value: z.string(),
   }),
   role: z.string(),
+  position_id: z.string().min(1, "Please select a position"),
 })
 
 export default function CreateUser({ company_id }: { company_id: string }) {
@@ -47,6 +57,15 @@ export default function CreateUser({ company_id }: { company_id: string }) {
     useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [positions, setPositions] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    const fetchPositions = async () => {
+      const data = await getPositions(company_id)
+      setPositions(data)
+    }
+    fetchPositions()
+  }, [company_id])
 
   const form = useForm({
     defaultValues: {
@@ -59,13 +78,21 @@ export default function CreateUser({ company_id }: { company_id: string }) {
         value: "",
       },
       role: "",
+      position_id: "",
     },
     validators: {
       onChange: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const { employee_id, password, first_name, last_name, manager_id, role } =
-        value
+      const {
+        employee_id,
+        password,
+        first_name,
+        last_name,
+        manager_id,
+        role,
+        position_id,
+      } = value
 
       setIsLoading(true)
       try {
@@ -76,12 +103,14 @@ export default function CreateUser({ company_id }: { company_id: string }) {
           last_name,
           company_id,
           manager_id.value,
-          role
+          role,
+          position_id
         )
 
         toast.success("User created successfully")
         form.reset()
-      } catch {
+      } catch (error) {
+        console.error(error)
         toast.error("Something went wrong, please try again later")
       } finally {
         setIsLoading(false)
@@ -178,14 +207,16 @@ export default function CreateUser({ company_id }: { company_id: string }) {
               }}
             </form.Field>
             <div className="flex items-center justify-start">
-              <p className="text-xs">You can generate a secure password</p>
+              <p className="text-xs text-muted-foreground">
+                Generate a secure password
+              </p>
               <Button
                 variant={"link"}
                 type="button"
-                className="w-fit"
+                className="w-fit px-2"
                 onClick={generateSecurePassword}
               >
-                Generate password
+                Generate
               </Button>
             </div>
             <form.Field name="first_name">
@@ -242,6 +273,36 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                 )
               }}
             </form.Field>
+            <form.Field name="position_id">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Position</FieldLabel>
+                    <Select
+                      name={field.name}
+                      value={field.state.value}
+                      onValueChange={(value) => field.handleChange(value)}
+                    >
+                      <SelectTrigger id={field.name}>
+                        <SelectValue placeholder="Select a position" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {positions.map((pos) => (
+                          <SelectItem key={pos.id} value={pos.id}>
+                            {pos.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                )
+              }}
+            </form.Field>
             <form.Field name="role">
               {(field) => {
                 const isInvalid =
@@ -253,15 +314,8 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                       value={field.state.value}
                       onSelect={(value) => {
                         field.handleChange(value!)
-                        if (value === "manager") {
-                          setDisableManagerSelection(true)
-                          field.form.setFieldValue("manager_id", {
-                            label: "",
-                            value: "",
-                          })
-                        } else {
-                          setDisableManagerSelection(false)
-                        }
+                        // Allowing managers to also have a manager, so we don't disable selection here
+                        setDisableManagerSelection(false)
                       }}
                     />
                     {isInvalid && (
@@ -298,7 +352,7 @@ export default function CreateUser({ company_id }: { company_id: string }) {
           <Button
             type="submit"
             form="create-user"
-            className="mt-4"
+            className="mt-4 w-full"
             disabled={isLoading}
           >
             {isLoading ? (

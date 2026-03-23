@@ -15,22 +15,33 @@ import { useState } from "react"
 import { toast } from "sonner"
 import DeleteAlert from "@/components/alerts/delete-alert"
 import { Badge } from "@/components/ui/badge"
+import { useRouter } from "next/navigation"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Employee = {
   id: string
+  company_id: string
   employee_id: string
   first_name: string
   last_name: string
+  manager_id?: string
+  position_id?: string
   manager: {
     first_name: string
     last_name: string
   }
+  position: {
+    name: string
+  }
   role: string
 }
 
-const PasswordCell = ({ row }: { row: { getValue: (key: string) => unknown } }) => {
+const PasswordCell = ({
+  row,
+}: {
+  row: { getValue: (key: string) => unknown }
+}) => {
   const [togglePassword, setTogglePassword] = useState<boolean>(false)
 
   const password = row.getValue("temp_password") as string
@@ -100,6 +111,17 @@ export const columns: ColumnDef<Employee>[] = [
     },
   },
   {
+    accessorKey: "position",
+    header: "Position",
+    cell: ({ row }) => {
+      const position = row.getValue("position") as {
+        name: string
+      }
+
+      return <span>{position?.name || "N/A"}</span>
+    },
+  },
+  {
     accessorKey: "temp_password",
     header: "Temp Password",
     cell: ({ row }) => <PasswordCell row={row} />,
@@ -133,6 +155,7 @@ export const columns: ColumnDef<Employee>[] = [
 function Menu({ employee }: { employee: Employee }) {
   const [open, setOpen] = useState<boolean>(false)
   const [isLoading, setLoading] = useState<boolean>(false)
+  const router = useRouter()
 
   const handleDelete = async () => {
     setLoading(true)
@@ -156,7 +179,11 @@ function Menu({ employee }: { employee: Employee }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push(`/admin/users/${employee.id}/edit`)}
+          >
+            Edit
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             Delete
           </DropdownMenuItem>
