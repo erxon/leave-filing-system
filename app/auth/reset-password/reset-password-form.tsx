@@ -55,8 +55,8 @@ export default function ResetPasswordForm({
 
       toast.success("Password reset successful")
       router.push("/dashboard")
-    } catch (error: any) {
-      toast.error(error.message || "Failed to reset password")
+    } catch (error) {
+      toast.error((error as Error).message || "Failed to reset password")
     } finally {
       setIsLoading(false)
     }

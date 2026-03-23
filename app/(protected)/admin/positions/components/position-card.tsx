@@ -120,7 +120,7 @@ function DeletePosition({
       } else {
         toast.error(result.error || "Failed to delete position")
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred")
     } finally {
       setIsLoading(false)
