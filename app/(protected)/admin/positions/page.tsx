@@ -7,6 +7,7 @@ import {
   getPositions,
 } from "./components/actions"
 import { Position } from "./components/positions.type"
+import PageHeader from "../components/page-header"
 
 export default async function Page({
   searchParams,
@@ -28,12 +29,10 @@ export default async function Page({
     <div className="space-y-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-lg font-semibold tracking-tight">Positions</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage job titles and roles within the company.
-          </p>
-        </div>
+        <PageHeader
+          title="Positions"
+          description="Manage job titles and roles within the company."
+        />
         <NewPosition
           companyId={companyId!}
           departments={departments}
