@@ -16,7 +16,6 @@ import {
   FileText,
   Network,
 } from "lucide-react"
-import { Suspense } from "react"
 import Link from "next/link"
 import { FetchAdmin } from "./fetch-admin"
 
