@@ -42,7 +42,22 @@ export function LoginForm({
 
     if (data) {
       toast.success("Login successful")
-      router.push("/leave/history")
+
+      // Get employee data
+      const { data: employee, error: employeeError } = await supabase
+        .from("employee_profiles")
+        .select("*")
+        .eq("id", data.user?.id)
+        .single()
+
+      if (employeeError) throw employeeError
+
+      // Redirect to appropriate page based on role
+      if (!employee.is_password_reset) {
+        router.push("/auth/reset-password")
+      } else {
+        router.push("/dashboard")
+      }
     }
   }
 

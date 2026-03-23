@@ -72,7 +72,6 @@ export async function registerEmployee(
 
     if (leavesError) {
       console.error("Error initializing remaining leaves:", leavesError)
-      // We don't necessarily want to fail user creation if this fails, but it's good to log
     }
   }
 

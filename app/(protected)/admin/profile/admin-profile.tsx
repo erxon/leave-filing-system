@@ -103,7 +103,7 @@ export default function AdminProfile({ admin }: { admin: AdminProfile }) {
       } else {
         toast.error(result.error)
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred.")
     } finally {
       setIsLoading(false)
