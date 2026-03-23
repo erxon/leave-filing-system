@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 
 export async function uploadAvatar(formData: FormData) {
   const supabase = await createClient()
-  const { data: admin, error: adminError } = await supabase.auth.getUser()
+  const { data: admin } = await supabase.auth.getUser()
 
   const userId = admin?.user?.id
   const file = formData.get("file") as File
@@ -79,7 +79,7 @@ export async function updatePersonalDetails(personalDetails: {
     const supabase = await createClient()
 
     const { data: admin, error } = await supabase.auth.getUser()
-    const { data: adminData, error: adminDataError } = await supabaseAdmin
+    const { error: adminDataError } = await supabaseAdmin
       .from("administrators")
       .update(personalDetails)
       .eq("user_id", admin?.user?.id)
@@ -93,7 +93,7 @@ export async function updatePersonalDetails(personalDetails: {
 
     return { success: true }
   } catch (error) {
-    return { success: false, error: "Failed to update admin" }
+    return { success: false, error: (error as Error).message }
   }
 }
 

@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea"
 const formSchema = z.object({
   name: z.string().min(1, "Company name is required"),
   phone: z.string().min(1, "Phone number is required"),
-  email: z.email("Invalid email address"),
+  email: z.string().email("Invalid email address"),
   description: z.string().min(1, "Company description is required"),
 })
 
