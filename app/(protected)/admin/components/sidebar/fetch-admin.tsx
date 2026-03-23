@@ -1,19 +1,18 @@
-import supabaseAdmin from "@/lib/supabase/admin"
-import { createClient } from "@/lib/supabase/server"
+"use client"
+
 import { NavAdminUser } from "./nav-admin-user"
+import { useAdminData } from "../../context/admin-client-provider"
 
-export async function FetchAdmin() {
-  const supabase = await createClient()
-  const { data: admin, error } = await supabase.auth.getUser()
-  const { data: adminData, error: adminDataError } = await supabaseAdmin
-    .from("administrators")
-    .select("*")
-    .eq("user_id", admin?.user?.id)
-    .single()
+export function FetchAdmin() {
+  const { data: admin, isLoading, isError, error } = useAdminData()
 
-  if (error || adminDataError) {
-    throw new Error("Error fetching admin")
+  if (isLoading) {
+    return <div>Loading...</div>
   }
 
-  return <NavAdminUser adminData={adminData} />
+  if (isError) {
+    return <div>Error {error.message}</div>
+  }
+
+  return <NavAdminUser adminData={admin} />
 }

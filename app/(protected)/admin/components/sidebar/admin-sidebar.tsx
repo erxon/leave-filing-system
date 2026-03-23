@@ -16,12 +16,11 @@ import {
   FileText,
   Network,
 } from "lucide-react"
-import { Suspense } from "react"
 import Link from "next/link"
 import { FetchAdmin } from "./fetch-admin"
 
 const navLinks = [
-  { href: "/admin", label: "Manage Users", icon: Users },
+  { href: "/admin/users", label: "Manage Users", icon: Users },
   { href: "/admin/company", label: "Company", icon: Building },
   { href: "/admin/positions", label: "Positions", icon: Briefcase },
   { href: "/admin/departments", label: "Departments", icon: Blocks },
@@ -51,9 +50,7 @@ export function AdminSidebar() {
         <SidebarGroup />
       </SidebarContent>
       <SidebarFooter>
-        <Suspense fallback={<div>Loading...</div>}>
-          <FetchAdmin />
-        </Suspense>
+        <FetchAdmin />
       </SidebarFooter>
     </Sidebar>
   )

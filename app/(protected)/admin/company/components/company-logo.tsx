@@ -75,7 +75,7 @@ export default function CompanyLogo({ company }: CompanyLogoProps) {
         setSelectedFile(null)
         router.refresh()
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred.")
     } finally {
       setIsUploading(false)
