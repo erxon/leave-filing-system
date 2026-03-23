@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { EmployeeProfile } from "@/lib/types"
-import { uploadAvatar } from "../actions"
+import { getSignedUrl, uploadAvatar } from "../actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,6 +17,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
 import { Loader2, UploadCloud } from "lucide-react"
+import { ImageCropper } from "@/components/profile/image-cropper"
+
 
 export function ProfileForm({ employee }: { employee: EmployeeProfile }) {
   const [isUploading, setIsUploading] = useState(false)
@@ -24,7 +26,34 @@ export function ProfileForm({ employee }: { employee: EmployeeProfile }) {
     employee.avatar_url || null
   )
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isCropperOpen, setIsCropperOpen] = useState(false)
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+
+  useEffect(() => {
+    let isMounted = true
+    const fetchSignedUrl = async () => {
+      if (employee.avatar_url) {
+        try {
+          const data = await getSignedUrl({ filePath: employee.avatar_url })
+          if (isMounted && data && data.signedUrl) {
+            setPreviewUrl(data.signedUrl)
+          } else if (isMounted && data && data.error) {
+            console.error("Failed to fetch signed URL:", data.error)
+          }
+        } catch (err) {
+          console.error("Error in fetchSignedUrlForAvatar:", err)
+        }
+      }
+    }
+
+    fetchSignedUrl()
+
+    return () => {
+      isMounted = false
+    }
+  }, [employee.avatar_url])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -36,9 +65,24 @@ export function ProfileForm({ employee }: { employee: EmployeeProfile }) {
       return
     }
 
-    setSelectedFile(file)
-    setPreviewUrl(URL.createObjectURL(file))
+    const reader = new FileReader()
+    reader.addEventListener("load", () => {
+      setImageToCrop(reader.result as string)
+      setIsCropperOpen(true)
+    })
+    reader.readAsDataURL(file)
   }
+
+  const handleCropComplete = useCallback((croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "avatar.jpg", { type: "image/jpeg" })
+    setSelectedFile(file)
+    setPreviewUrl(URL.createObjectURL(croppedBlob))
+    // Reset file input so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }, [])
+
 
   const handleUploadClick = () => {
     fileInputRef.current?.click()
@@ -140,6 +184,13 @@ export function ProfileForm({ employee }: { employee: EmployeeProfile }) {
           </Button>
         </CardFooter>
       </Card>
+
+      <ImageCropper
+        image={imageToCrop}
+        open={isCropperOpen}
+        onOpenChange={setIsCropperOpen}
+        onCropComplete={handleCropComplete}
+      />
 
       {/* Account Info Card (Read Only for now) */}
       <Card>
