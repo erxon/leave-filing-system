@@ -51,7 +51,7 @@ export async function registerEmployee(
 
   // Initialize remaining leaves based on position configuration
   const { data: leaveConfigs } = await supabaseAdmin
-    .from("remaining_leaves")
+    .from("leave_configuration")
     .select("leave_type, number_of_leaves")
     .eq("company_id", companyId)
     .eq("position_id", positionId)
@@ -72,7 +72,6 @@ export async function registerEmployee(
 
     if (leavesError) {
       console.error("Error initializing remaining leaves:", leavesError)
-      // We don't necessarily want to fail user creation if this fails, but it's good to log
     }
   }
 
