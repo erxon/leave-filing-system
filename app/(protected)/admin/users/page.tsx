@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import Unauthorized from "@/components/unauthorized"
 import { redirect } from "next/navigation"
-import Administrator from "./components/user-creation/ui/administrator"
+import Administrator from "../components/user-creation/ui/administrator"
 
 export default async function Page() {
   const supabase = await createClient()

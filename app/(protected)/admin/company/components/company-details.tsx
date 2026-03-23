@@ -11,7 +11,7 @@ export default async function CompanyDetails() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">Company</h1>
+      <h1 className="text-lg font-semibold">Company</h1>
       <div className="grid gap-6 md:grid-cols-2">
         <CompanyLogo company={company} />
         <CompanyForm company={company} />
