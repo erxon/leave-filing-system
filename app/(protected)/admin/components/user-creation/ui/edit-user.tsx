@@ -12,12 +12,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { updateEmployee } from "../actions"
 import RoleSelector from "./role-selector"
@@ -31,6 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
+import { Employee } from "./users/columns"
+import { EmployeeProfile } from "@/lib/types"
 
 const formSchema = z.object({
   employee_id: z.string().min(1, "Please fill the employee ID"),
@@ -48,7 +45,7 @@ export default function EditUserForm({
   employee,
   company_id,
 }: {
-  employee: any
+  employee: EmployeeProfile
   company_id: string
 }) {
   const [isLoading, setIsLoading] = useState<boolean>(false)

@@ -24,9 +24,9 @@ export default async function Page() {
         <div className="space-y-4">
           <LeaveConfigTable
             companyId={companyId}
-            leaveTypes={leaveTypes as any}
+            leaveTypes={leaveTypes}
             positions={positions}
-            initialConfigs={leaveConfigs as any}
+            initialConfigs={leaveConfigs}
           />
         </div>
       </div>
