@@ -27,11 +27,11 @@ export default function Administrator({
             Import
           </Button>
         </div>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-6">
-          <div className="w-full lg:col-span-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+          <div className="w-full lg:col-span-3">
             <CreateUser company_id={administrator.company_id} />
           </div>
-          <div className="w-full lg:col-span-4">
+          <div className="w-full lg:col-span-9">
             <Suspense fallback={<div>Loading...</div>}>
               <Users company_id={administrator.company_id} />
             </Suspense>
