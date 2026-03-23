@@ -69,14 +69,74 @@ export async function addPosition(data: {
   }
 }
 
-export async function getPositions(companyId: string) {
+export async function updatePosition(
+  id: string,
+  data: {
+    department_id: string
+    name: string
+    description?: string
+    reports_to?: string
+  }
+) {
   try {
-    const { data: positions, error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
+      .from("positions")
+      .update(data)
+      .eq("id", id)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    revalidatePath("/admin/positions")
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+export async function deletePosition(id: string) {
+  try {
+    const { error } = await supabaseAdmin
+      .from("positions")
+      .delete()
+      .eq("id", id)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    revalidatePath("/admin/positions")
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+export async function getPositions(
+  companyId: string,
+  search?: string,
+  departmentId?: string
+) {
+  try {
+    let query = supabaseAdmin
       .from("positions")
       .select(
         "id, name, description, department_id, reports_to, reporting_to:reports_to(name)"
       )
       .eq("company_id", companyId)
+
+    if (search) {
+      query = query.ilike("name", `%${search}%`)
+    }
+
+    if (departmentId && departmentId !== "all") {
+      query = query.eq("department_id", departmentId)
+    }
+
+    const { data: positions, error } = await query
 
     if (error) {
       throw new Error(error.message)

@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { addPosition } from "./actions"
+import { addPosition, updatePosition } from "./actions"
 
 const formSchema = z.object({
   name: z.string().min(1, "Position name is required"),
@@ -66,6 +66,7 @@ export default function NewPosition({
           </DialogDescription>
         </DialogHeader>
         <PositionForm
+          mode="create"
           companyId={companyId}
           departments={departments}
           positions={positions}
@@ -76,20 +77,79 @@ export default function NewPosition({
   )
 }
 
-function PositionForm({
+export function EditPosition({
   companyId,
   departments,
   positions,
+  position,
+  trigger,
+}: NewPositionProps & {
+  position: {
+    id: string
+    name: string
+    description: string
+    department_id: string
+    reports_to?: string | null
+  }
+  trigger?: React.ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button variant="outline" size="sm">
+            Edit
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Position</DialogTitle>
+          <DialogDescription>
+            Update the details for this position.
+          </DialogDescription>
+        </DialogHeader>
+        <PositionForm
+          mode="update"
+          companyId={companyId}
+          departments={departments}
+          positions={positions}
+          position={position}
+          onSuccess={() => setOpen(false)}
+        />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function PositionForm({
+  mode = "create",
+  companyId,
+  departments,
+  positions,
+  position,
   onSuccess,
-}: NewPositionProps & { onSuccess: () => void }) {
+}: NewPositionProps & {
+  mode?: "create" | "update"
+  position?: {
+    id: string
+    name: string
+    description: string
+    department_id: string
+    reports_to?: string | null
+  }
+  onSuccess: () => void
+}) {
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm({
     defaultValues: {
-      name: "",
-      description: "",
-      department_id: "",
-      reports_to: "",
+      name: position?.name || "",
+      description: position?.description || "",
+      department_id: position?.department_id || "",
+      reports_to: position?.reports_to || "",
     },
     validators: {
       onChange: formSchema,
@@ -97,23 +157,35 @@ function PositionForm({
     onSubmit: async ({ value }) => {
       setIsLoading(true)
       try {
-        const reports_to = 
-          value.reports_to && value.reports_to !== "none" 
-            ? value.reports_to 
+        const reports_to =
+          value.reports_to && value.reports_to !== "none"
+            ? value.reports_to
             : undefined
 
-        const result = await addPosition({
-          ...value,
-          company_id: companyId,
-          reports_to,
-        })
+        let result
+        if (mode === "create") {
+          result = await addPosition({
+            ...value,
+            company_id: companyId,
+            reports_to,
+          })
+        } else {
+          result = await updatePosition(position!.id, {
+            ...value,
+            reports_to,
+          })
+        }
 
         if (result.success) {
-          toast.success("Position created successfully")
-          form.reset()
+          toast.success(
+            mode === "create"
+              ? "Position created successfully"
+              : "Position updated successfully"
+          )
+          if (mode === "create") form.reset()
           onSuccess()
         } else {
-          toast.error(result.error || "Failed to create position")
+          toast.error(result.error || `Failed to ${mode} position`)
         }
       } catch (error) {
         toast.error("An unexpected error occurred")
@@ -239,10 +311,12 @@ function PositionForm({
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Creating...
+            {mode === "create" ? "Creating..." : "Updating..."}
           </>
-        ) : (
+        ) : mode === "create" ? (
           "Create Position"
+        ) : (
+          "Update Position"
         )}
       </Button>
     </form>

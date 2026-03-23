@@ -15,16 +15,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import PositionCard from "./components/position-card"
 import NewPosition from "./components/new-position"
+import PositionFilters from "./components/position-filters"
 import {
   getCompanyId,
   getDepartments,
   getPositions,
 } from "./components/actions"
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams
+  const search = typeof params.search === "string" ? params.search : undefined
+  const departmentId = typeof params.department === "string" ? params.department : undefined
+
   const companyId = await getCompanyId()
   const departments = companyId ? await getDepartments(companyId) : []
-  const positions = companyId ? await getPositions(companyId) : []
+  const positions = companyId 
+    ? await getPositions(companyId, search, departmentId) 
+    : []
 
   return (
     <div className="space-y-6">
@@ -44,41 +55,40 @@ export default async function Page() {
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="relative flex-1">
-          <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search positions..."
-            className="w-full pl-9 md:w-[300px]"
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <PositionFilters departments={departments} />
 
       {/* Positions Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {/* Position Card 1 */}
-        <PositionList />
+        <PositionList 
+          companyId={companyId!} 
+          departments={departments} 
+          positions={positions} 
+        />
       </div>
     </div>
   )
 }
 
-async function PositionList() {
-  const companyId = await getCompanyId()
-  const positions = companyId ? await getPositions(companyId) : []
-
+async function PositionList({
+  companyId,
+  departments,
+  positions,
+}: {
+  companyId: string
+  departments: { id: string; name: string }[]
+  positions: any[]
+}) {
   return (
     <>
       {positions.map((position) => (
-        <PositionCard key={position.id} position={position} />
+        <PositionCard
+          key={position.id}
+          position={position}
+          companyId={companyId}
+          departments={departments}
+          positions={positions}
+        />
       ))}
     </>
   )
