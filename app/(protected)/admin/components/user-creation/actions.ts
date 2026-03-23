@@ -51,7 +51,7 @@ export async function registerEmployee(
 
   // Initialize remaining leaves based on position configuration
   const { data: leaveConfigs } = await supabaseAdmin
-    .from("leave_configuration")
+    .from("remaining_leaves")
     .select("leave_type, number_of_leaves")
     .eq("company_id", companyId)
     .eq("position_id", positionId)
