@@ -24,7 +24,10 @@ export async function uploadAvatar(formData: FormData) {
 
   if (uploadError) {
     console.error("Upload error:", uploadError)
-    return { error: "Failed to upload image. Please ensure the 'avatars' bucket exists and is configured." }
+    return {
+      error:
+        "Failed to upload image. Please ensure the 'avatars' bucket exists and is configured.",
+    }
   }
 
   // 2. Get Public URL
@@ -47,6 +50,31 @@ export async function uploadAvatar(formData: FormData) {
 
   revalidatePath("/profile")
   revalidatePath("/dashboard")
-  
+
   return { success: true, avatarUrl: publicUrl }
 }
+
+export async function getSignedUrl({ filePath }: { filePath: string }) {
+  const supabase = await createClient()
+
+  // If filePath is a full URL, extract the path after 'avatars/'
+  const path = filePath.includes("avatars/")
+    ? filePath.split("avatars/").pop()
+    : filePath
+
+  if (!path) {
+    return { error: "Invalid file path" }
+  }
+
+  const { data, error } = await supabase.storage
+    .from("avatars")
+    .createSignedUrl(path, 60)
+
+  if (error) {
+    console.error("Error getting signed URL for path:", path, error)
+    return { error: `Failed to get signed URL: ${error.message}` }
+  }
+
+  return { success: true, signedUrl: data.signedUrl }
+}
+

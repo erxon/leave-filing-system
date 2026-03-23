@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/sidebar"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
+import { getSignedUrl } from "@/app/(protected)/(employee)/profile/actions"
 
 export function NavUser({
   user,
@@ -39,12 +41,32 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const router = useRouter()
+  const [avatar, setAvatar] = useState<string | null>(user.avatar)
 
   const handleLogout = () => {
     const supabase = createClient()
     supabase.auth.signOut()
     router.push("/auth/login")
   }
+
+  const fetchSignedUrlForAvatar = useCallback(async () => {
+    if (user.avatar) {
+      try {
+        const data = await getSignedUrl({ filePath: user.avatar })
+        if (data && data.signedUrl) {
+          setAvatar(data.signedUrl)
+        } else if (data && data.error) {
+          console.error("Failed to fetch signed URL:", data.error)
+        }
+      } catch (err) {
+        console.error("Error in fetchSignedUrlForAvatar:", err)
+      }
+    }
+  }, [user.avatar])
+
+  useEffect(() => {
+    fetchSignedUrlForAvatar()
+  }, [fetchSignedUrlForAvatar])
 
   return (
     <SidebarMenu>
@@ -57,7 +79,7 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage
-                  src={user.avatar}
+                  src={avatar || undefined}
                   alt={`${user.name.first_name} ${user.name.last_name}`}
                 />
                 <AvatarFallback className="rounded-lg">
@@ -86,7 +108,7 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
-                    src={user.avatar}
+                    src={avatar || undefined}
                     alt={`${user.name.first_name} ${user.name.last_name}`}
                   />
                   <AvatarFallback className="rounded-lg">
