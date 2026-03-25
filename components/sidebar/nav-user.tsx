@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/sidebar"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { getSignedUrl } from "@/app/(protected)/(employee)/profile/actions"
 
 export function NavUser({

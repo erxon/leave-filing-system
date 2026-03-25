@@ -43,6 +43,7 @@ export async function getDepartments(companyId: string) {
 
     return departments
   } catch (error) {
+    console.log(error)
     return []
   }
 }

@@ -1,11 +1,9 @@
 import { getEmployee } from "@/app/auth/actions"
 import { redirect } from "next/navigation"
-import CustomCalendar, {
-  Leave,
-  HolidayEvent,
-} from "./components/custom-calendar"
 import { HolidayCard } from "./components/holiday-card"
 import { addDays, subDays, startOfMonth, addMonths, setDate } from "date-fns"
+import DepartmentCalendar, { Holidays } from "./department-calendar"
+import { HolidayEvent } from "./components/custom-calendar"
 
 export default async function CalendarPage() {
   const employee = await getEmployee()
@@ -16,45 +14,6 @@ export default async function CalendarPage() {
 
   // --- Mock Data ---
   const currentMonthStart = startOfMonth(new Date())
-
-  const mockLeaves: Leave[] = [
-    {
-      id: "leave-1",
-      employeeName: "Alice Smith",
-      type: "Vacation Leave",
-      duration: "full-day",
-      startDate: new Date(),
-      endDate: addDays(new Date(), 2),
-      status: "approved",
-    },
-    {
-      id: "leave-2",
-      employeeName: "Bob Johnson",
-      type: "Sick Leave",
-      duration: "half-day",
-      startDate: subDays(new Date(), 5),
-      endDate: subDays(new Date(), 4),
-      status: "approved",
-    },
-    {
-      id: "leave-3",
-      employeeName: "Charlie Brown",
-      type: "Vacation Leave",
-      duration: "full-day",
-      startDate: addDays(new Date(), 10),
-      endDate: addDays(new Date(), 14),
-      status: "approved",
-    },
-    {
-      id: "leave-4",
-      employeeName: employee.first_name + " " + employee.last_name,
-      type: "Vacation Leave",
-      duration: "full-day",
-      startDate: addDays(new Date(), -1),
-      endDate: addDays(new Date(), 3),
-      status: "approved",
-    },
-  ]
 
   const mockHolidays: HolidayEvent[] = [
     {
@@ -115,14 +74,11 @@ export default async function CalendarPage() {
         </div>
       </div>
       <div className="grid min-h-[600px] flex-1 grid-cols-1 gap-6 pb-10 lg:grid-cols-4">
-        {/* Main Calendar takes up 3 columns */}
         <div className="h-full lg:col-span-3">
-          <CustomCalendar events={mockLeaves} holidays={mockHolidays} />
+          <DepartmentCalendar />
         </div>
-
-        {/* Holiday Card takes up 1 column */}
         <div className="h-full lg:col-span-1">
-          <HolidayCard holidays={mockHolidays} />
+          <Holidays />
         </div>
       </div>
     </div>
