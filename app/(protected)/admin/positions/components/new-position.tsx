@@ -187,7 +187,7 @@ function PositionForm({
         } else {
           toast.error(result.error || `Failed to ${mode} position`)
         }
-      } catch (error) {
+      } catch {
         toast.error("An unexpected error occurred")
       } finally {
         setIsLoading(false)
@@ -282,7 +282,9 @@ function PositionForm({
           {(field) => {
             return (
               <Field>
-                <FieldLabel htmlFor={field.name}>Reports To (Optional)</FieldLabel>
+                <FieldLabel htmlFor={field.name}>
+                  Reports To (Optional)
+                </FieldLabel>
                 <Select
                   name={field.name}
                   value={field.state.value}

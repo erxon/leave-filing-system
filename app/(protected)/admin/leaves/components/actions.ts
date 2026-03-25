@@ -60,14 +60,16 @@ export async function updateLeaveConfiguration(data: {
       .eq("leave_type", data.leave_type)
       .single()
 
+    if (fetchError) throw new Error(fetchError.message)
+
     let error
     if (existing) {
       // Update
       const { error: updateError } = await supabaseAdmin
         .from("leave_configuration")
-        .update({ 
+        .update({
           number_of_leaves: data.number_of_leaves,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", existing.id)
       error = updateError

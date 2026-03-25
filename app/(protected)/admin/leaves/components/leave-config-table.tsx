@@ -38,7 +38,9 @@ export function LeaveConfigTable({
   positions,
   initialConfigs,
 }: LeaveConfigTableProps) {
-  const [configs, setConfigs] = useState<Record<string, Record<number, number>>>(() => {
+  const [configs, setConfigs] = useState<
+    Record<string, Record<number, number>>
+  >(() => {
     const initial: Record<string, Record<number, number>> = {}
     positions.forEach((pos) => {
       initial[pos.id] = {}
@@ -81,11 +83,13 @@ export function LeaveConfigTable({
       const allSuccess = results.every((r) => r.success)
 
       if (allSuccess) {
-        toast.success(`Leave settings updated for ${positions.find(p => p.id === posId)?.name}`)
+        toast.success(
+          `Leave settings updated for ${positions.find((p) => p.id === posId)?.name}`
+        )
       } else {
         toast.error("Some updates failed. Please try again.")
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred.")
     } finally {
       setSaving(null)
@@ -103,12 +107,12 @@ export function LeaveConfigTable({
             {leaveTypes.map((lt) => (
               <th
                 key={lt.id}
-                className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-32"
+                className="h-12 w-32 px-4 text-left align-middle font-medium text-muted-foreground"
               >
                 {lt.leave_type} (Days)
               </th>
             ))}
-            <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground w-24">
+            <th className="h-12 w-24 px-4 text-right align-middle font-medium text-muted-foreground">
               Action
             </th>
           </tr>
@@ -118,14 +122,17 @@ export function LeaveConfigTable({
             <tr className="border-b transition-colors hover:bg-muted/50">
               <td
                 colSpan={leaveTypes.length + 2}
-                className="p-4 align-middle text-center text-muted-foreground"
+                className="p-4 text-center align-middle text-muted-foreground"
               >
                 No positions found. Please add positions first.
               </td>
             </tr>
           ) : (
             positions.map((pos) => (
-              <tr key={pos.id} className="border-b transition-colors hover:bg-muted/50">
+              <tr
+                key={pos.id}
+                className="border-b transition-colors hover:bg-muted/50"
+              >
                 <td className="p-4 align-middle font-medium">{pos.name}</td>
                 {leaveTypes.map((lt) => (
                   <td key={lt.id} className="p-4 align-middle">
@@ -140,7 +147,7 @@ export function LeaveConfigTable({
                     />
                   </td>
                 ))}
-                <td className="p-4 align-middle text-right">
+                <td className="p-4 text-right align-middle">
                   <Button
                     size="sm"
                     onClick={() => handleSave(pos.id)}
