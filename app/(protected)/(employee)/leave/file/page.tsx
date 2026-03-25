@@ -68,7 +68,7 @@ export default function Page() {
     dates.length > 0 &&
     dates.every((d) => {
       const detail = dateDetails[d.toISOString()]
-      return detail && detail.reason.trim() !== ""
+      return detail && detail.reason.trim() !== "" && detail.duration !== ""
     })
 
   const handleSubmit = async () => {
@@ -99,47 +99,40 @@ export default function Page() {
   }
 
   return (
-    <div className="flex-1 space-y-6">
+    <div className="flex-1 space-y-6 lg:px-48">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-xl font-bold tracking-tight">File a Leave</h2>
       </div>
-
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        {/* Left Column: Controls */}
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="leave-type">Leave Type</Label>
-            <LeaveType
-              onChange={(val: "VL" | "SL") => setLeaveType(val as "VL" | "SL")}
-            />
-          </div>
-
-          {leaveType === "SL" && (
-            <div className="space-y-2">
-              <Label htmlFor="medical-cert">
-                Medical Certificate (Required for Sick Leave)
-              </Label>
-              <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Input id="medical-cert" type="file" />
-              </div>
+      <div className="space-y-8 lg:grid lg:grid-cols-8 lg:gap-8">
+        <div className="col-span-3 rounded-lg border p-4 transition-all hover:shadow-lg lg:p-6">
+          <div className="mb-8 flex flex-col space-y-2">
+            <div className="space-y-4">
+              <Label htmlFor="leave-type">Leave Type</Label>
+              <LeaveType
+                onChange={(val: "VL" | "SL") =>
+                  setLeaveType(val as "VL" | "SL")
+                }
+              />
+              {leaveType === "SL" && (
+                <div className="space-y-2">
+                  <Label htmlFor="medical-cert">
+                    Medical Certificate (Required for Sick Leave)
+                  </Label>
+                  <div className="grid w-full max-w-sm items-center gap-1.5">
+                    <Input id="medical-cert" type="file" />
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-
-          <Button
-            onClick={handleSubmit}
-            disabled={!isFormValid || isLoading}
-            className="w-full"
-          >
-            {isLoading ? "Submitting..." : "Submit Leave Request"}
-          </Button>
-        </div>
-
-        {/* Right Column: Calendar & Details */}
-        <div className="space-y-6">
+            <Button onClick={handleSubmit} disabled={!isFormValid || isLoading}>
+              {isLoading ? "Submitting..." : "Submit Leave Request"}
+            </Button>
+          </div>
           <div className="space-y-2">
             <Label>Select Dates</Label>
-            <div className="inline-block w-fit rounded-md border bg-card p-4">
+            <div className="flex w-full justify-center rounded-md border bg-card p-4">
               <Calendar
+                className="p-0"
                 mode="multiple"
                 selected={dates}
                 onSelect={handleDateSelect}
@@ -147,7 +140,8 @@ export default function Page() {
               />
             </div>
           </div>
-
+        </div>
+        <div className="col-span-5 space-y-6">
           {dates && dates.length > 0 && (
             <div className="space-y-4">
               <Label>Details for Selected Dates</Label>
@@ -165,7 +159,8 @@ export default function Page() {
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{format(date, "PPP")}</span>
-                      <div className="w-32">
+                      <div className="flex items-center gap-2">
+                        <span className="text-destructive">*</span>
                         <DurationSelect
                           onChange={(val: "full-day" | "half-day") =>
                             handleDetailChange(dateStr, "duration", val)
