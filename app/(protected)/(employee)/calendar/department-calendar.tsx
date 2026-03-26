@@ -1,8 +1,5 @@
-import { getApprovedLeaveRequests } from "./actions"
+import { getApprovedLeaveRequests, fetchHolidaysAction } from "./actions"
 import CustomCalendar from "./components/custom-calendar"
-import { HolidayEvent } from "./components/custom-calendar"
-import { startOfMonth, setDate, addMonths } from "date-fns"
-import { fetchHolidaysAction } from "./actions"
 import { HolidayCard } from "./components/holiday-card"
 
 export default async function DepartmentCalendar() {

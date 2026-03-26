@@ -56,6 +56,47 @@ export async function getApprovedLeaveRequests() {
   }
 }
 
+export async function getDepartmentMembers() {
+  try {
+    const supabase = await createClient()
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return []
+    }
+
+    const { data: employee, error: employeeFetchError } = await supabase
+      .from("employee_profiles")
+      .select("department_id")
+      .eq("id", user.id)
+      .single()
+
+    if (employeeFetchError || !employee) {
+      throw new Error("Failed to fetch employee profile")
+    }
+
+    const { data: members, error: membersFetchError } = await supabase
+      .from("employee_profiles")
+      .select(
+        "id, first_name, last_name, avatar_url, position_id: positions(name)"
+      )
+      .eq("department_id", employee.department_id)
+      .order("first_name", { ascending: true })
+
+    if (membersFetchError) {
+      throw new Error("Failed to fetch department members")
+    }
+
+    return members
+  } catch (error) {
+    console.error("Error fetching department members:", error)
+    return []
+  }
+}
+
 export async function fetchHolidaysAction() {
   const API_KEY = process.env.GOOGLE_CALENDAR_API_KEY
 
