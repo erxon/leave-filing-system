@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { FetchAdmin } from "./fetch-admin"
+import { CompanyLogo, CompanyName } from "./company-details"
 
 const navLinks = [
   { href: "/admin/users", label: "Manage Users", icon: Users },
@@ -30,8 +31,23 @@ const navLinks = [
 
 export function AdminSidebar() {
   return (
-    <Sidebar>
-      <SidebarHeader />
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size={"lg"}
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              asChild
+            >
+              <Link href="/admin">
+                <CompanyLogo />
+                <CompanyName />
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           {navLinks.map((link) => (
