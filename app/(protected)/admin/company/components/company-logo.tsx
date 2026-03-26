@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Loader2, UploadCloud, Building2 } from "lucide-react"
-import { uploadLogo } from "./actions"
+import { getSignedURLForLogo, uploadLogo } from "./actions"
 import { useRouter } from "next/navigation"
 import {
   Card,
@@ -32,8 +32,15 @@ export default function CompanyLogo({ company }: CompanyLogoProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
+  async function getLogoURL() {
+    const result = await getSignedURLForLogo({ filePath: company.logo || "" })
+    if (result.success) {
+      setPreviewUrl(result.signedUrl)
+    }
+  }
+
   useEffect(() => {
-    setPreviewUrl(company.logo || null)
+    getLogoURL()
   }, [company.logo])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
