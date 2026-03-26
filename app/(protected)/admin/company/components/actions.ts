@@ -67,6 +67,15 @@ export async function uploadLogo(companyId: string, formData: FormData) {
     const fileName = `${companyId}-${Math.random()}.${fileExt}`
     const filePath = `${fileName}`
 
+    // 0. Get existing logo to delete later if update is successful
+    const { data: currentCompany } = await supabaseAdmin
+      .from("company")
+      .select("logo")
+      .eq("id", companyId)
+      .single()
+
+    const oldLogoUrl = currentCompany?.logo
+
     // 1. Upload to Supabase Storage 'logos' bucket
     const { error: uploadError } = await supabaseAdmin.storage
       .from("logos")
@@ -91,11 +100,51 @@ export async function uploadLogo(companyId: string, formData: FormData) {
       .eq("id", companyId)
 
     if (updateError) {
+      // Clean up the uploaded file if DB update fails
+      await supabaseAdmin.storage.from("logos").remove([filePath])
       throw new Error("Failed to update company with new logo")
+    }
+
+    // 4. Delete old logo from storage if it exists in the 'logos' bucket
+    if (oldLogoUrl && oldLogoUrl.includes("logos/")) {
+      const oldPath = oldLogoUrl.split("logos/").pop()
+      if (oldPath) {
+        const { error: deleteError } = await supabaseAdmin.storage
+          .from("logos")
+          .remove([oldPath])
+        
+        if (deleteError) {
+          console.error("Failed to delete old logo:", oldPath, deleteError)
+        }
+      }
     }
 
     return { success: true, logoUrl: publicUrl }
   } catch (error) {
     return { success: false, error: (error as Error).message }
   }
+}
+
+export async function getSignedURLForLogo({ filePath }: { filePath: string }) {
+  const supabase = await createClient()
+
+  // If filePath is a full URL, extract the path after 'avatars/'
+  const path = filePath.includes("logos/")
+    ? filePath.split("logos/").pop()
+    : filePath
+
+  if (!path) {
+    return { error: "Invalid logo path" }
+  }
+
+  const { data, error } = await supabase.storage
+    .from("logos")
+    .createSignedUrl(path, 60)
+
+  if (error) {
+    console.error("Error getting signed URL for path:", path, error)
+    return { error: `Failed to get signed URL: ${error.message}` }
+  }
+
+  return { success: true, signedUrl: data.signedUrl }
 }
