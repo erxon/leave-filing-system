@@ -36,9 +36,6 @@ export async function getData(): Promise<LeaveHistoryItem[]> {
     return []
   }
 
-  // Supabase returns nested objects for foregin keys and string for dates.
-  // We need to map them to match LeaveHistoryItem.
-
   const formattedLeaves: LeaveHistoryItem[] = (
     (leaves as unknown as LeaveWithDetails[]) || []
   ).map((leave) => ({
