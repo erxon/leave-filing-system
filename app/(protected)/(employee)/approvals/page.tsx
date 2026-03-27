@@ -4,8 +4,16 @@ import { getApprovalsData } from "./components/approvals"
 import { Suspense } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getEmployee } from "@/app/auth/actions"
+import { ExportLeavesDialog } from "./components/export-leaves-dialog"
 
-export default async function Approvals() {
+import { DateRangeFilter } from "./components/date-range-filter"
+
+export default async function Approvals(props: {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const searchParams = await props.searchParams
+  const start = typeof searchParams?.start === "string" ? searchParams.start : undefined
+  const end = typeof searchParams?.end === "string" ? searchParams.end : undefined
   const employee = await getEmployee()
 
   if (!employee || employee.role !== 2) {
@@ -20,12 +28,16 @@ export default async function Approvals() {
     )
   }
 
-  const data = await getApprovalsData()
+  const data = await getApprovalsData(start, end)
 
   return (
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-xl font-semibold">Leave Approvals</h2>
+        <div className="flex items-center gap-4">
+          <DateRangeFilter />
+          <ExportLeavesDialog />
+        </div>
       </div>
 
       <Tabs defaultValue="list" className="w-full">

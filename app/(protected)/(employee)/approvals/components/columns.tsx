@@ -26,6 +26,7 @@ export type LeaveApprovalItem = {
   id: string
   employee_id: string
   employee_name: string
+  avatar_url: string
   date: Date
   duration: string
   reason: string

@@ -54,7 +54,6 @@ export function DatePicker({
           selected={date}
           onSelect={setDate}
           defaultMonth={date}
-          disabled={{ before: addDays(startOfToday(), 1) }}
         />
       </PopoverContent>
     </Popover>

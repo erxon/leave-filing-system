@@ -73,17 +73,21 @@ async function updateRemainingLeaves(
   }
 }
 
-async function getEmployees() {
+export async function getDepartmentEmployees() {
   const supabase = await createClient()
   const manager = await getEmployee()
 
+  if (!manager) return []
+
   const { data: employees, error } = await supabase
     .from("employee_profiles")
-    .select("first_name, last_name")
+    .select("id, first_name, last_name")
     .eq("manager_id", manager.id)
+    .order("first_name", { ascending: true })
 
   if (error) {
-    throw new Error("Error fetching employees")
+    console.error("Error fetching employees:", error)
+    return []
   }
 
   return employees
@@ -231,6 +235,69 @@ export async function removeLeave(id: string) {
 }
 
 export async function approvingMangerEmployees() {
-  const employees = await getEmployees()
+  const employees = await getDepartmentEmployees()
   return employees
+}
+
+export async function getLeavesForExport(filters: {
+  startDate?: Date
+  endDate?: Date
+  status?: string
+  employeeId?: string
+}) {
+  try {
+    const supabase = await createClient()
+    const manager = await getEmployee()
+
+    if (!manager) return { success: false, message: "Unauthorized" }
+
+    let query = supabase
+      .from("leaves")
+      .select(
+        `
+        id,
+        date,
+        duration,
+        reason,
+        leave_types ( leave_type ),
+        status ( status_name ),
+        employee_profiles!leaves_employee_id_fkey ( first_name, last_name )
+      `
+      )
+      .eq("approving_manager_id", manager.id)
+
+    if (filters.startDate) {
+      query = query.gte("date", filters.startDate.toISOString())
+    }
+    if (filters.endDate) {
+      query = query.lte("date", filters.endDate.toISOString())
+    }
+    if (filters.employeeId && filters.employeeId !== "all") {
+      query = query.eq("employee_id", filters.employeeId)
+    }
+    if (filters.status && filters.status !== "all") {
+      // Find status ID based on name if needed, or assume UI passes ID.
+      // Let's assume UI passes status name for filter, but Supabase table uses ID.
+      // We need to map status names to IDs.
+      const statusMap: Record<string, number> = {
+        pending: 1,
+        approved: 2,
+        rejected: 3,
+      }
+      if (statusMap[filters.status.toLowerCase()]) {
+        query = query.eq("status", statusMap[filters.status.toLowerCase()])
+      }
+    }
+
+    const { data: leaves, error } = await query.order("date", {
+      ascending: false,
+    })
+
+    if (error) throw error
+
+    return { success: true, data: leaves }
+  } catch (error) {
+    console.error("Error fetching leaves for export:", error)
+    return { success: false, message: "Failed to fetch data" }
+  }
 }
