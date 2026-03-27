@@ -40,9 +40,8 @@ export function LoginForm({
       toast.error("Invalid Employee ID or Password")
     }
 
-    if (data) {
+    if (data && !error) {
       toast.success("Login successful")
-
       // Get employee data
       const { data: employee, error: employeeError } = await supabase
         .from("employee_profiles")

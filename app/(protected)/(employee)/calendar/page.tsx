@@ -38,16 +38,6 @@ export default async function CalendarPage() {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="rounded-lg bg-yellow-100 p-2 text-xs dark:bg-yellow-900/30 dark:text-yellow-100">
-            Pending Leave
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="rounded-lg bg-red-100 p-2 text-xs dark:bg-red-900/30 dark:text-red-100">
-            Rejected Leave
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
           <div className="rounded-lg bg-purple-100 p-2 text-xs dark:bg-purple-900/30 dark:text-purple-100">
             Holiday
           </div>

@@ -81,7 +81,7 @@ export async function getDepartmentMembers() {
     const { data: members, error: membersFetchError } = await supabase
       .from("employee_profiles")
       .select(
-        "id, first_name, last_name, avatar_url, position_id: positions(name)"
+        `id, first_name, last_name, avatar_url, role: roles(role), position_id: positions(name)`
       )
       .eq("department_id", employee.department_id)
       .order("first_name", { ascending: true })

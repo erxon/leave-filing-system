@@ -15,6 +15,11 @@ import Link from "next/link"
 import FetchUser from "@/components/sidebar/fetch-user"
 import { Suspense } from "react"
 import { getEmployee } from "@/app/auth/actions"
+import {
+  CompanyLogo,
+  CompanyName,
+} from "@/app/(protected)/admin/components/sidebar/company-details"
+import CompanyDetails from "./company-details"
 
 const menus = [
   {
@@ -58,7 +63,11 @@ export async function EmployeeSidebar() {
   return (
     <>
       <Sidebar collapsible="icon">
-        <SidebarHeader />
+        <SidebarHeader>
+          <Suspense fallback={<div>Loading...</div>}>
+            <CompanyDetails />
+          </Suspense>
+        </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>

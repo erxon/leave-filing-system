@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input"
 import { format, startOfToday, addDays } from "date-fns"
 import { fileMultipleLeaves } from "./actions"
 import { toast } from "sonner"
+import { checkConflicts, ConflictResponse } from "@/app/(protected)/(employee)/leave/file/utils"
+import { useEffect } from "react"
+
 
 export default function Page() {
   const [isLoading, setIsLoading] = useState(false)
@@ -19,6 +22,33 @@ export default function Page() {
   const [dateDetails, setDateDetails] = useState<
     Record<string, { duration: string; reason: string }>
   >({})
+  const [dateStatuses, setDateStatuses] = useState<Record<string, ConflictResponse>>({})
+
+  useEffect(() => {
+    let isMounted = true
+    if (dates && dates.length > 0) {
+      const fetchStatuses = async () => {
+        const newStatuses: Record<string, ConflictResponse> = {}
+        for (const date of dates) {
+          const key = date.toISOString()
+          if (dateStatuses[key]) {
+            newStatuses[key] = dateStatuses[key]
+          } else {
+            const res = await checkConflicts(key)
+            newStatuses[key] = res
+          }
+        }
+        if (isMounted) setDateStatuses(newStatuses)
+      }
+      fetchStatuses()
+    } else {
+      setDateStatuses({})
+    }
+    return () => {
+      isMounted = false
+    }
+  }, [dates])
+
 
   const handleDateSelect = (selectedDates: Date[] | undefined) => {
     setDates(selectedDates)
@@ -63,6 +93,10 @@ export default function Page() {
     }))
   }
 
+  const hasRedConflict = dates?.some(
+    (d) => dateStatuses[d.toISOString()]?.status === "red"
+  )
+
   const isFormValid =
     dates &&
     dates.length > 0 &&
@@ -70,6 +104,7 @@ export default function Page() {
       const detail = dateDetails[d.toISOString()]
       return detail && detail.reason.trim() !== "" && detail.duration !== ""
     })
+
 
   const handleSubmit = async () => {
     const leaves = {
@@ -124,7 +159,7 @@ export default function Page() {
                 </div>
               )}
             </div>
-            <Button onClick={handleSubmit} disabled={!isFormValid || isLoading}>
+            <Button onClick={handleSubmit} disabled={!isFormValid || isLoading || hasRedConflict}>
               {isLoading ? "Submitting..." : "Submit Leave Request"}
             </Button>
           </div>
@@ -168,6 +203,20 @@ export default function Page() {
                         />
                       </div>
                     </div>
+                    {dateStatuses[dateStr] && dateStatuses[dateStr].status !== "none" && (
+                      <p
+                        className={`text-xs font-medium ${
+                          dateStatuses[dateStr].status === "red"
+                            ? "text-red-500"
+                            : dateStatuses[dateStr].status === "yellow"
+                            ? "text-yellow-600 dark:text-yellow-500"
+                            : "text-green-600 dark:text-green-500"
+                        }`}
+                      >
+                        {dateStatuses[dateStr].message}
+                      </p>
+                    )}
+
                     <div className="space-y-2">
                       <Label htmlFor={`reason-${dateStr}`}>
                         Reason <span className="text-destructive">*</span>

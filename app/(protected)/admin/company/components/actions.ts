@@ -112,7 +112,7 @@ export async function uploadLogo(companyId: string, formData: FormData) {
         const { error: deleteError } = await supabaseAdmin.storage
           .from("logos")
           .remove([oldPath])
-        
+
         if (deleteError) {
           console.error("Failed to delete old logo:", oldPath, deleteError)
         }
@@ -128,7 +128,6 @@ export async function uploadLogo(companyId: string, formData: FormData) {
 export async function getSignedURLForLogo({ filePath }: { filePath: string }) {
   const supabase = await createClient()
 
-  // If filePath is a full URL, extract the path after 'avatars/'
   const path = filePath.includes("logos/")
     ? filePath.split("logos/").pop()
     : filePath

@@ -3,28 +3,27 @@
 import { Leave } from "@/lib/types"
 import { createClient } from "@/lib/supabase/server"
 import { getEmployee } from "@/app/auth/actions"
+import { checkConflicts } from "@/app/(protected)/(employee)/leave/file/utils"
 
 export async function fileSingleLeave(leave: Leave) {
   try {
     const supabase = await createClient()
 
     const employee = await getEmployee()
-    const { data: leaveTypes } = await supabase
-      .from("leave_types")
-      .select("*")
+
+    const { data: leaveTypes } = await supabase.from("leave_types").select("*")
 
     const leaveType = leaveTypes?.find((lt) => lt.code === leave.leave_type)
 
-    const { data: remainingLeaves } =
-      await supabase
-        .from("remaining_leaves")
-        .select("*")
-        .eq("employee_id", employee?.id)
-        .eq(
-          "leave_type",
-          leaveTypes?.find((lt) => lt.code === leave.leave_type)?.id
-        )
-        .single()
+    const { data: remainingLeaves } = await supabase
+      .from("remaining_leaves")
+      .select("*")
+      .eq("employee_id", employee?.id)
+      .eq(
+        "leave_type",
+        leaveTypes?.find((lt) => lt.code === leave.leave_type)?.id
+      )
+      .single()
 
     if (!leaveType) {
       throw new Error("Invalid leave type")
@@ -56,6 +55,7 @@ export async function fileSingleLeave(leave: Leave) {
       leave_type: leaveType.id,
       status: 1,
       approving_manager_id: employee?.manager_id,
+      department_id: employee.department_id,
       reason: leave.reason,
       duration: leave.duration,
       date: dateISO,
