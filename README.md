@@ -1,21 +1,13 @@
-# Next.js template
+# Online Leave Filing system
 
-This is a Next.js template with shadcn/ui.
+**Key Features:**
 
-## Adding components
+- **Smart Conflict Detection:** Managers can set a "threshold" for their department. If too many people request the same day, the system flags it instantly.
+- **Department-Wide Calendar:** A unified view of leaves synced with Philippines Holidays.
+- **Seamless Reporting:** One-click CSV exports for payroll and records.
 
-To add components to your app, run the following command:
+**The Tech Behind It:**
 
-```bash
-npx shadcn@latest add button
-```
-
-This will place the ui components in the `components` directory.
-
-## Using components
-
-To use the components in your app, import them as follows:
-
-```tsx
-import { Button } from "@/components/ui/button";
-```
+- **Multi-tenancy:** Built with a strict multi-tenant architecture to ensure total data isolation between different companies.
+- **Supabase RPC:** Used for efficient, server-side conflict detection logic.
+- **Google Calendar API:** Integrated for localized holiday tracking.
