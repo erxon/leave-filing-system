@@ -27,7 +27,9 @@ import { format } from "date-fns"
 export function ExportLeavesDialog() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [employees, setEmployees] = useState<{ id: string; first_name: string; last_name: string }[]>([])
+  const [employees, setEmployees] = useState<
+    { id: string; first_name: string; last_name: string }[]
+  >([])
   const [filters, setFilters] = useState({
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
@@ -56,28 +58,50 @@ export function ExportLeavesDialog() {
       }
 
       // Generate CSV
-      const headers = ["Employee", "Date", "Leave Type", "Duration", "Status", "Reason"]
-      const rows = result.data.map((leave: any) => [
-        `"${leave.employee_profiles.first_name} ${leave.employee_profiles.last_name}"`,
+      interface ExportLeaveRecord {
+        date: string
+        duration: string
+        reason: string
+        leave_types: { leave_type: string } | null
+        status: { status_name: string } | null
+        employee_profiles: { first_name: string; last_name: string } | null
+      }
+
+      const headers = [
+        "Employee",
+        "Date",
+        "Leave Type",
+        "Duration",
+        "Status",
+        "Reason",
+      ]
+      const rows = (result.data as unknown as ExportLeaveRecord[]).map((leave) => [
+        `"${leave.employee_profiles?.first_name || ""} ${leave.employee_profiles?.last_name || ""}"`,
         format(new Date(leave.date), "yyyy-MM-dd"),
         `"${leave.leave_types?.leave_type || "N/A"}"`,
         `"${leave.duration}"`,
         `"${leave.status?.status_name || "N/A"}"`,
-        `"${(leave.reason || "").replace(/"/g, '""')}"`
+        `"${(leave.reason || "").replace(/"/g, '""')}"`,
       ])
 
-      const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n")
-      
+      const csvContent = [
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n")
+
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
       const url = URL.createObjectURL(blob)
       const link = document.createElement("a")
       link.setAttribute("href", url)
-      link.setAttribute("download", `leave_records_${format(new Date(), "yyyyMMdd")}.csv`)
+      link.setAttribute(
+        "download",
+        `leave_records_${format(new Date(), "yyyyMMdd")}.csv`
+      )
       link.style.visibility = "hidden"
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      
+
       toast.success("CSV Exported successfully")
       setOpen(false)
     } catch (error) {
@@ -104,23 +128,23 @@ export function ExportLeavesDialog() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Start Date</Label>
-              <DatePicker 
-                date={filters.startDate} 
-                onChange={(date) => setFilters({ ...filters, startDate: date })} 
+              <DatePicker
+                date={filters.startDate}
+                onChange={(date) => setFilters({ ...filters, startDate: date })}
               />
             </div>
             <div className="space-y-2">
               <Label>End Date</Label>
-              <DatePicker 
-                date={filters.endDate} 
-                onChange={(date) => setFilters({ ...filters, endDate: date })} 
+              <DatePicker
+                date={filters.endDate}
+                onChange={(date) => setFilters({ ...filters, endDate: date })}
               />
             </div>
           </div>
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select 
-              value={filters.status} 
+            <Select
+              value={filters.status}
               onValueChange={(val) => setFilters({ ...filters, status: val })}
             >
               <SelectTrigger>
@@ -136,9 +160,11 @@ export function ExportLeavesDialog() {
           </div>
           <div className="space-y-2">
             <Label>Employee</Label>
-            <Select 
-              value={filters.employeeId} 
-              onValueChange={(val) => setFilters({ ...filters, employeeId: val })}
+            <Select
+              value={filters.employeeId}
+              onValueChange={(val) =>
+                setFilters({ ...filters, employeeId: val })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select Employee" />
@@ -155,8 +181,18 @@ export function ExportLeavesDialog() {
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleExport} disabled={loading} className="w-full gap-2">
-            {loading ? "Exporting..." : <><Download className="h-4 w-4" /> Download CSV</>}
+          <Button
+            onClick={handleExport}
+            disabled={loading}
+            className="w-full gap-2"
+          >
+            {loading ? (
+              "Exporting..."
+            ) : (
+              <>
+                <Download className="h-4 w-4" /> Download CSV
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
