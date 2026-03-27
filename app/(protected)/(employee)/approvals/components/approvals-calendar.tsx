@@ -27,7 +27,7 @@ export function ApprovalsCalendar({ data }: ApprovalsCalendarProps) {
   }))
 
   return (
-    <div className="">
+    <div className="h-[1000px]">
       <CustomCalendar events={events} />
     </div>
   )

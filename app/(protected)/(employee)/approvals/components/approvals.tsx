@@ -19,11 +19,14 @@ interface LeaveWithDetails {
   } | null
 }
 
-export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
+export async function getApprovalsData(
+  startDate?: string,
+  endDate?: string
+): Promise<LeaveApprovalItem[]> {
   const supabase = await createClient()
   const employee = await getEmployee()
 
-  const { data: leaves, error } = await supabase
+  let query = supabase
     .from("leaves")
     .select(
       `
@@ -34,6 +37,16 @@ export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
       `
     )
     .eq("approving_manager_id", employee.id)
+
+  if (startDate) {
+    query = query.gte("date", startDate)
+  }
+  if (endDate) {
+    query = query.lte("date", endDate)
+  }
+
+  const { data: leaves, error } = await query
+  
 
   if (error) {
     console.error("Error fetching approvals:", error)
