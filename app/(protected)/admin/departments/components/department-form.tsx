@@ -68,7 +68,7 @@ export default function DepartmentForm({
         } else {
           toast.error(result.error || `Failed to ${mode} department`)
         }
-      } catch (error) {
+      } catch {
         toast.error("An unexpected error occurred")
       } finally {
         setIsLoading(false)

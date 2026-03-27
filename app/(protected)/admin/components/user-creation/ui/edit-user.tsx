@@ -26,7 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
-import { Employee } from "./users/columns"
 import { EmployeeProfile } from "@/lib/types"
 
 const formSchema = z.object({

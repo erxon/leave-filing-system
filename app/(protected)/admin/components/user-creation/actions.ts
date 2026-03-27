@@ -11,7 +11,8 @@ export async function registerEmployee(
   companyId: string,
   managerId: string,
   role: string,
-  positionId: string
+  positionId: string,
+  departmentId: string
 ) {
   const shadowEmail = `${employeeId.toLowerCase()}@internal.hr-system.com`
 
@@ -45,6 +46,7 @@ export async function registerEmployee(
       temp_password: tempPassword,
       manager_id: managerId || null,
       position_id: positionId,
+      department_id: departmentId,
     })
 
   if (employeeCreationError) throw employeeCreationError
@@ -55,6 +57,7 @@ export async function registerEmployee(
     .select("leave_type, number_of_leaves")
     .eq("company_id", companyId)
     .eq("position_id", positionId)
+    .eq("department_id", departmentId)
 
   if (leaveConfigs && leaveConfigs.length > 0) {
     const remainingLeavesToInsert = leaveConfigs.map((config) => ({

@@ -44,7 +44,7 @@ export default function DepartmentCard({
       } else {
         toast.error(result.error || "Failed to delete department")
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred")
     } finally {
       setIsDeleting(false)
@@ -57,7 +57,9 @@ export default function DepartmentCard({
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{department.name}</CardTitle>
         </div>
-        <CardDescription>{department.description || "No description provided."}</CardDescription>
+        <CardDescription className="line-clamp-2 truncate">
+          {department.description || "No description provided."}
+        </CardDescription>
       </CardHeader>
       <CardFooter className="flex gap-2 border-t p-4">
         <EditDepartment
@@ -72,7 +74,12 @@ export default function DepartmentCard({
         />
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" className="flex-1" disabled={isDeleting}>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="flex-1"
+              disabled={isDeleting}
+            >
               {isDeleting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -91,7 +98,10 @@ export default function DepartmentCard({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
+              >
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>

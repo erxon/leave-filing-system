@@ -14,12 +14,7 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { generateSecureRandomAlphanumeric } from "@/lib/utils"
 import { ManagersSelector } from "./managers-selector"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import RoleSelector from "./role-selector"
 import { registerEmployee } from "../actions"
 import {
@@ -29,7 +24,10 @@ import {
 } from "@/components/ui/input-group"
 import { Eye } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
-import { getPositions } from "../../../positions/components/actions"
+import {
+  getPositions,
+  getDepartments,
+} from "../../../positions/components/actions"
 import {
   Select,
   SelectContent,
@@ -49,6 +47,7 @@ const formSchema = z.object({
     value: z.string(),
   }),
   role: z.string(),
+  department_id: z.string().min(1, "Please select a department"),
   position_id: z.string().min(1, "Please select a position"),
 })
 
@@ -57,14 +56,23 @@ export default function CreateUser({ company_id }: { company_id: string }) {
     useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [positions, setPositions] = useState<{ id: string; name: string }[]>([])
+  const [positions, setPositions] = useState<
+    { id: string; name: string; department_id: string | null }[]
+  >([])
+  const [departments, setDepartments] = useState<
+    { id: string; name: string }[]
+  >([])
 
   useEffect(() => {
-    const fetchPositions = async () => {
-      const data = await getPositions(company_id)
-      setPositions(data)
+    const fetchData = async () => {
+      const [posData, deptData] = await Promise.all([
+        getPositions(company_id),
+        getDepartments(company_id),
+      ])
+      setPositions(posData)
+      setDepartments(deptData)
     }
-    fetchPositions()
+    fetchData()
   }, [company_id])
 
   const form = useForm({
@@ -78,6 +86,7 @@ export default function CreateUser({ company_id }: { company_id: string }) {
         value: "",
       },
       role: "",
+      department_id: "",
       position_id: "",
     },
     validators: {
@@ -91,6 +100,7 @@ export default function CreateUser({ company_id }: { company_id: string }) {
         last_name,
         manager_id,
         role,
+        department_id,
         position_id,
       } = value
 
@@ -104,7 +114,8 @@ export default function CreateUser({ company_id }: { company_id: string }) {
           company_id,
           manager_id.value,
           role,
-          position_id
+          position_id,
+          department_id
         )
 
         toast.success("User created successfully")
@@ -273,25 +284,28 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                 )
               }}
             </form.Field>
-            <form.Field name="position_id">
+            <form.Field name="department_id">
               {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Position</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Department</FieldLabel>
                     <Select
                       name={field.name}
                       value={field.state.value}
-                      onValueChange={(value) => field.handleChange(value)}
+                      onValueChange={(value) => {
+                        field.handleChange(value)
+                        form.setFieldValue("position_id", "")
+                      }}
                     >
                       <SelectTrigger id={field.name}>
-                        <SelectValue placeholder="Select a position" />
+                        <SelectValue placeholder="Select a department" />
                       </SelectTrigger>
                       <SelectContent>
-                        {positions.map((pos) => (
-                          <SelectItem key={pos.id} value={pos.id}>
-                            {pos.name}
+                        {departments.map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id}>
+                            {dept.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -303,6 +317,49 @@ export default function CreateUser({ company_id }: { company_id: string }) {
                 )
               }}
             </form.Field>
+
+            <form.Subscribe selector={(state) => state.values.department_id}>
+              {((departmentId: string) => {
+                return (
+                  <form.Field name="position_id">
+                    {(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid
+                      const filteredPositions = positions.filter(
+                        (pos) => pos.department_id === departmentId
+                      )
+                      return (
+                        <Field data-invalid={isInvalid}>
+                          <FieldLabel htmlFor={field.name}>Position</FieldLabel>
+                          <Select
+                            name={field.name}
+                            value={field.state.value}
+                            onValueChange={(value) => field.handleChange(value)}
+                            disabled={!departmentId}
+                          >
+                            <SelectTrigger id={field.name}>
+                              <SelectValue placeholder="Select a position" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {filteredPositions.map((pos) => (
+                                <SelectItem key={pos.id} value={pos.id}>
+                                  {pos.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      )
+                    }}
+                  </form.Field>
+                )
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              }) as any}
+            </form.Subscribe>
+
             <form.Field name="role">
               {(field) => {
                 const isInvalid =
