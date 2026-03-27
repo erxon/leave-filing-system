@@ -12,7 +12,11 @@ interface LeaveWithDetails {
   remarks: string | null
   leave_types: { leave_type: string } | null
   status: { status_name: string } | null
-  employee_profiles: { first_name: string; last_name: string } | null
+  employee_profiles: {
+    first_name: string
+    last_name: string
+    avatar_url: string
+  } | null
 }
 
 export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
@@ -26,7 +30,7 @@ export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
       *,
       leave_types ( leave_type ),
       status ( status_name ),
-      employee_profiles!leaves_employee_id_fkey ( first_name, last_name )
+      employee_profiles!leaves_employee_id_fkey ( first_name, last_name, avatar_url )
       `
     )
     .eq("approving_manager_id", employee.id)
@@ -44,6 +48,7 @@ export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
     employee_name: leave.employee_profiles
       ? `${leave.employee_profiles.first_name || ""} ${leave.employee_profiles.last_name || ""}`.trim()
       : "Unknown",
+    avatar_url: leave.employee_profiles?.avatar_url || "",
     date: new Date(leave.date),
     duration: leave.duration,
     reason: leave.reason,

@@ -4,6 +4,7 @@ import { getApprovalsData } from "./components/approvals"
 import { Suspense } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getEmployee } from "@/app/auth/actions"
+import { ExportLeavesDialog } from "./components/export-leaves-dialog"
 
 export default async function Approvals() {
   const employee = await getEmployee()
@@ -26,6 +27,7 @@ export default async function Approvals() {
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-xl font-semibold">Leave Approvals</h2>
+        <ExportLeavesDialog />
       </div>
 
       <Tabs defaultValue="list" className="w-full">

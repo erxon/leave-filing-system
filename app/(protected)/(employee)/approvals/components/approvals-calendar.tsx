@@ -23,10 +23,11 @@ export function ApprovalsCalendar({ data }: ApprovalsCalendarProps) {
     startDate: item.date,
     endDate: item.date,
     status: item.status, // Assuming single day if only one date is provided
+    avatar_url: item.avatar_url,
   }))
 
   return (
-    <div className="h-[700px]">
+    <div className="">
       <CustomCalendar events={events} />
     </div>
   )

@@ -171,7 +171,6 @@ export default function Page() {
                 mode="multiple"
                 selected={dates}
                 onSelect={handleDateSelect}
-                disabled={{ before: addDays(startOfToday(), 1) }}
               />
             </div>
           </div>
