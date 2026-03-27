@@ -58,9 +58,11 @@ export async function updateLeaveConfiguration(data: {
       .eq("company_id", data.company_id)
       .eq("position_id", data.position_id)
       .eq("leave_type", data.leave_type)
-      .single()
+      .maybeSingle()
 
-    if (fetchError) throw new Error(fetchError.message)
+    if (fetchError) {
+      throw new Error(fetchError.message)
+    }
 
     let error
     if (existing) {
@@ -75,9 +77,11 @@ export async function updateLeaveConfiguration(data: {
       error = updateError
     } else {
       // Insert
+
       const { error: insertError } = await supabaseAdmin
         .from("leave_configuration")
         .insert([data])
+
       error = insertError
     }
 

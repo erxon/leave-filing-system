@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { getAvatar, updatePersonalDetails, uploadAvatar } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -37,14 +37,14 @@ export default function AdminProfile({ admin }: { admin: AdminProfile }) {
   })
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const fetchAvatar = useCallback(async () => {
+  const fetchAvatar = async () => {
     const avatar = await getAvatar()
-    setPreviewUrl(avatar.publicUrl)
-  }, [])
+    setPreviewUrl(avatar)
+  }
 
   useEffect(() => {
     fetchAvatar()
-  }, [fetchAvatar])
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

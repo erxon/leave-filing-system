@@ -12,24 +12,41 @@ interface LeaveWithDetails {
   remarks: string | null
   leave_types: { leave_type: string } | null
   status: { status_name: string } | null
-  employee_profiles: { first_name: string; last_name: string } | null
+  employee_profiles: {
+    first_name: string
+    last_name: string
+    avatar_url: string
+  } | null
 }
 
-export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
+export async function getApprovalsData(
+  startDate?: string,
+  endDate?: string
+): Promise<LeaveApprovalItem[]> {
   const supabase = await createClient()
   const employee = await getEmployee()
 
-  const { data: leaves, error } = await supabase
+  let query = supabase
     .from("leaves")
     .select(
       `
       *,
       leave_types ( leave_type ),
       status ( status_name ),
-      employee_profiles!leaves_employee_id_fkey ( first_name, last_name )
+      employee_profiles!leaves_employee_id_fkey ( first_name, last_name, avatar_url )
       `
     )
     .eq("approving_manager_id", employee.id)
+
+  if (startDate) {
+    query = query.gte("date", startDate)
+  }
+  if (endDate) {
+    query = query.lte("date", endDate)
+  }
+
+  const { data: leaves, error } = await query
+  
 
   if (error) {
     console.error("Error fetching approvals:", error)
@@ -44,6 +61,7 @@ export async function getApprovalsData(): Promise<LeaveApprovalItem[]> {
     employee_name: leave.employee_profiles
       ? `${leave.employee_profiles.first_name || ""} ${leave.employee_profiles.last_name || ""}`.trim()
       : "Unknown",
+    avatar_url: leave.employee_profiles?.avatar_url || "",
     date: new Date(leave.date),
     duration: leave.duration,
     reason: leave.reason,

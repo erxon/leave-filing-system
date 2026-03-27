@@ -106,13 +106,21 @@ export async function getAvatar() {
     .eq("user_id", admin?.user?.id)
     .single()
 
-  const { data: avatar } = supabaseAdmin.storage
+  const path = adminData?.avatar
+    ? adminData?.avatar?.split("avatars/").pop()
+    : ""
+
+  const { data } = await supabaseAdmin.storage
     .from("avatars")
-    .getPublicUrl(adminData?.avatar)
+    .createSignedUrl(path, 60 * 60 * 24 * 7)
 
   if (error || adminDataError) {
     throw new Error("Error fetching admin")
   }
 
-  return avatar
+  if (!data) {
+    throw new Error("Error fetching admin")
+  }
+
+  return data.signedUrl
 }

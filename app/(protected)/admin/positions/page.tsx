@@ -4,6 +4,7 @@ import PositionFilters from "./components/position-filters"
 import {
   getCompanyId,
   getDepartments,
+  getEmployeesByPosition,
   getPositions,
 } from "./components/actions"
 import { Position } from "./components/positions.type"
@@ -67,15 +68,20 @@ async function PositionList({
 }) {
   return (
     <>
-      {positions.map((position) => (
-        <PositionCard
-          key={position.id}
-          position={position}
-          companyId={companyId}
-          departments={departments}
-          positions={positions}
-        />
-      ))}
+      {positions.map(async (position) => {
+        const employees = await getEmployeesByPosition(position.id)
+
+        return (
+          <PositionCard
+            key={position.id}
+            position={position}
+            companyId={companyId}
+            departments={departments}
+            positions={positions}
+            employees={employees}
+          />
+        )
+      })}
     </>
   )
 }

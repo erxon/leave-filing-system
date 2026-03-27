@@ -24,7 +24,8 @@ import {
 } from "@/components/ui/sidebar"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { User } from "@supabase/supabase-js"
+import { useEffect, useState } from "react"
+import { getAvatar } from "../../profile/actions"
 
 interface AdminData {
   avatar: string
@@ -35,6 +36,7 @@ interface AdminData {
 }
 
 export function NavAdminUser({ adminData }: { adminData: AdminData }) {
+  const [avatar, setAvatar] = useState<string>(adminData.avatar)
   const { isMobile } = useSidebar()
   const router = useRouter()
 
@@ -43,6 +45,16 @@ export function NavAdminUser({ adminData }: { adminData: AdminData }) {
     supabase.auth.signOut()
     router.push("/auth/login")
   }
+
+  useEffect(() => {
+    let mounted = true
+    const fetchAvatarUrl = async () => {
+      const url = await getAvatar()
+      if (mounted) setAvatar(url)
+    }
+    fetchAvatarUrl()
+    return () => { mounted = false }
+  }, [])
 
   return (
     <SidebarMenu>
@@ -53,9 +65,9 @@ export function NavAdminUser({ adminData }: { adminData: AdminData }) {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
+              <Avatar className="rounded-lg after:rounded-lg after:border-0">
                 <AvatarImage
-                  src={adminData.avatar}
+                  src={avatar}
                   alt={`${adminData.first_name} ${adminData.last_name}`}
                 />
                 <AvatarFallback className="rounded-lg">
@@ -82,9 +94,9 @@ export function NavAdminUser({ adminData }: { adminData: AdminData }) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="rounded-lg after:rounded-lg after:border-0">
                   <AvatarImage
-                    src={adminData.avatar}
+                    src={avatar}
                     alt={`${adminData.first_name} ${adminData.last_name}`}
                   />
                   <AvatarFallback className="rounded-lg">

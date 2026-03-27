@@ -154,3 +154,40 @@ export async function getPositions(
     return []
   }
 }
+
+export async function getEmployeesByPosition(positionId: string) {
+  try {
+    const { data: employees, error } = await supabaseAdmin
+      .from("employee_profiles")
+      .select("id, first_name, last_name, avatar_url")
+      .eq("position_id", positionId)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return employees
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export async function getAvatarSignedUrl(avatarUrl: string) {
+  const path = avatarUrl.includes("avatars/")
+    ? avatarUrl.split("avatars/").pop()
+    : avatarUrl
+
+  if (!path) {
+    return { signedUrl: "" }
+  }
+
+  try {
+    const { data } = supabaseAdmin.storage.from("avatars").getPublicUrl(path)
+
+    return { signedUrl: data.publicUrl }
+  } catch (error) {
+    console.error(error)
+    return { signedUrl: "" }
+  }
+}

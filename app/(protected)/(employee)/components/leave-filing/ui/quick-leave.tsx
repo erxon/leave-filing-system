@@ -11,13 +11,15 @@ import {
 import { DatePicker } from "./date-picker"
 import LeaveType from "./leave-type"
 import DurationSelect from "./duration-select"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { addDays, startOfToday } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { fileSingleLeave } from "../actions"
 import { Leave } from "@/lib/types"
 import { toast } from "sonner"
+import { checkConflicts, ConflictResponse } from "@/app/(protected)/(employee)/leave/file/utils"
+
 
 export default function QuickLeave() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -28,6 +30,16 @@ export default function QuickLeave() {
     reason: null,
     duration: null,
   })
+  const [dateStatus, setDateStatus] = useState<ConflictResponse | null>(null)
+
+  useEffect(() => {
+    if (date) {
+      checkConflicts(date.toISOString()).then((res) => setDateStatus(res))
+    } else {
+      setDateStatus(null)
+    }
+  }, [date])
+
 
   const handleFileLeave = async () => {
     if (!date) return
@@ -72,7 +84,22 @@ export default function QuickLeave() {
           <DialogTitle>Quick Leave Filing</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <DatePicker onChange={setDate} date={date} />
+          <div className="space-y-1">
+            <DatePicker onChange={setDate} date={date} />
+            {dateStatus && dateStatus.status !== "none" && (
+              <p
+                className={`text-xs font-medium ${
+                  dateStatus.status === "red"
+                    ? "text-red-500"
+                    : dateStatus.status === "yellow"
+                    ? "text-yellow-600 dark:text-yellow-500"
+                    : "text-green-600 dark:text-green-500"
+                }`}
+              >
+                {dateStatus.message}
+              </p>
+            )}
+          </div>
           <LeaveType
             onChange={(value) => setLeave({ ...leave, leave_type: value })}
           />
@@ -86,7 +113,7 @@ export default function QuickLeave() {
           />
         </div>
         <DialogFooter>
-          <Button onClick={handleFileLeave} disabled={isLoading}>
+          <Button onClick={handleFileLeave} disabled={isLoading || dateStatus?.status === "red"}>
             {isLoading ? "Filing..." : "File"}
           </Button>
         </DialogFooter>

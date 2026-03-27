@@ -14,8 +14,8 @@ import { Separator } from "@/components/ui/separator"
 import { Edit2, Loader2, Trash2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { EditPosition } from "./new-position"
-import { useState } from "react"
-import { deletePosition } from "./actions"
+import { useEffect, useState } from "react"
+import { deletePosition, getAvatarSignedUrl } from "./actions"
 import { toast } from "sonner"
 import {
   Dialog,
@@ -32,6 +32,7 @@ export default function PositionCard({
   companyId,
   departments,
   positions,
+  employees,
 }: {
   position: {
     id: string
@@ -44,6 +45,12 @@ export default function PositionCard({
   companyId: string
   departments: { id: string; name: string }[]
   positions: { id: string; name: string }[]
+  employees: {
+    id: string
+    first_name: string
+    last_name: string
+    avatar_url: string
+  }[]
 }) {
   const reportsTo = position.reporting_to?.name || "None"
 
@@ -56,10 +63,18 @@ export default function PositionCard({
             Active
           </Badge>
         </div>
-        <CardDescription>{position.description}</CardDescription>
+        <CardDescription className="line-clamp-2 flex items-center gap-2">
+          <p className="truncate">
+            {" "}
+            {position.description || "No description provided."}
+          </p>
+          <Button variant="link" size="sm">
+            View more
+          </Button>
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Employees />
+      <CardContent className="flex-1 space-y-4">
+        <Employees employees={employees} />
         <Separator />
         <div className="flex items-center justify-between text-sm">
           <span className="text-sm text-muted-foreground">Reports to</span>
@@ -178,25 +193,75 @@ function DeletePosition({
   )
 }
 
-function Employees() {
+function Employees({
+  employees,
+}: {
+  employees: {
+    id: string
+    first_name: string
+    last_name: string
+    avatar_url: string
+  }[]
+}) {
   return (
     <div className="flex items-center justify-between">
-      <Employee />
-      <Button variant="link">View all</Button>
+      {employees.length > 0 ? (
+        <Employee employee={employees[0]} />
+      ) : (
+        <p className="text-sm text-muted-foreground">No employees</p>
+      )}
+      {employees.length > 0 && (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">View all</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Employees</DialogTitle>
+              <DialogDescription>Employees in this position</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {employees.map((employee) => (
+                <Employee key={employee.id} employee={employee} />
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
 
-function Employee() {
+function Employee({
+  employee,
+}: {
+  employee: { first_name: string; last_name: string; avatar_url: string }
+}) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    const loadSignedUrl = async () => {
+      if (!employee.avatar_url) return
+      const { signedUrl } = await getAvatarSignedUrl(employee.avatar_url)
+      if (mounted) setSignedUrl(signedUrl)
+    }
+    loadSignedUrl()
+    return () => { mounted = false }
+  }, [employee.avatar_url])
+
   return (
     <div className="flex items-center gap-2">
       <Avatar className="h-8 w-8">
-        <AvatarImage src="https://api.dicebear.com/7.x/initials/svg?seed=John" />
-        <AvatarFallback>JS</AvatarFallback>
+        <AvatarImage src={signedUrl || employee.avatar_url} />
+        <AvatarFallback>
+          {employee.first_name.charAt(0) + employee.last_name.charAt(0)}
+        </AvatarFallback>
       </Avatar>
       <div>
-        <p className="text-sm font-medium">John Doe</p>
-        <p className="text-xs text-muted-foreground">Team Lead</p>
+        <p className="text-sm font-medium">
+          {employee.first_name + " " + employee.last_name}
+        </p>
       </div>
     </div>
   )

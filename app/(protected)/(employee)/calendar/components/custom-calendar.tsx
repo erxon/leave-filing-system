@@ -21,10 +21,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { AvatarLarge, AvatarSmall } from "./employee-avatars"
 
 export type Leave = {
   id: string
   employeeName: string
+  avatar_url?: string | null
   type: "Sick Leave" | "Vacation Leave"
   startDate: Date
   endDate: Date
@@ -46,10 +57,19 @@ export default function CustomCalendar({
   holidays?: HolidayEvent[]
 }) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
   const today = () => setCurrentMonth(new Date())
+
+  const handleDayClick = (day: Date, dayEvents: Leave[]) => {
+    if (dayEvents.length > 0) {
+      setSelectedDay(day)
+      setIsDialogOpen(true)
+    }
+  }
 
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(currentMonth)
@@ -120,9 +140,10 @@ export default function CustomCalendar({
             return (
               <div
                 key={day.toString() + idx}
-                className={`min-h-[100px] bg-background p-2 transition-colors hover:bg-muted/50 ${
+                className={`min-h-[120px] bg-background p-2 transition-colors hover:bg-muted/50 ${
                   !isCurrentMonth ? "bg-muted/20 text-muted-foreground/50" : ""
-                }`}
+                } ${dayEvents.length > 0 ? "cursor-pointer" : ""}`}
+                onClick={() => handleDayClick(day, dayEvents)}
               >
                 <div className="mb-1 flex items-start justify-between">
                   <span
@@ -144,13 +165,13 @@ export default function CustomCalendar({
                           <span className="truncate">{holiday.name}</span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-purple-500 dark:bg-purple-800">
                         <div className="text-sm">
-                          <p className="flex items-center space-x-1 font-bold">
-                            <Star className="mr-1 h-4 w-4 text-purple-500" />
+                          <p className="flex items-center space-x-1 font-bold dark:text-purple-200">
+                            <Star className="mr-1 h-4 w-4 text-purple-200" />
                             {holiday.name}
                           </p>
-                          <p className="mt-1 text-xs text-muted-foreground">
+                          <p className="mt-1 text-xs text-white">
                             {format(holiday.date, "PPP")}
                           </p>
                         </div>
@@ -158,12 +179,12 @@ export default function CustomCalendar({
                     </Tooltip>
                   ))}
 
-                  {/* Render Leaves */}
-                  {dayEvents.map((event) => (
+                  {/* Render Leaves (Limited to 3) */}
+                  {dayEvents.slice(0, 3).map((event) => (
                     <Tooltip key={event.id}>
                       <TooltipTrigger asChild>
                         <div
-                          className={`cursor-pointer truncate rounded-md p-1 px-2 text-xs ${
+                          className={`flex cursor-pointer items-center gap-1 truncate rounded-md p-1 px-2 text-xs ${
                             event.type.toLowerCase() === "sick leave" &&
                             event.status === "approved" &&
                             "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300"
@@ -179,17 +200,22 @@ export default function CustomCalendar({
                             "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                           }`}
                         >
-                          {event.employeeName}
+                          <AvatarSmall
+                            avatar_url={event.avatar_url || ""}
+                            fallback={
+                              event.employeeName.split(" ")[0].charAt(0) +
+                              event.employeeName.split(" ")[1].charAt(0)
+                            }
+                          />
+                          <span className="truncate">{event.employeeName}</span>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="text-sm">
                           <p className="font-bold">{event.employeeName}</p>
                           <p>{event.type}</p>
-                          <p className="text-muted-foreground">
-                            {event.duration}
-                          </p>
-                          <p className="mt-1 text-xs text-muted-foreground">
+                          <p className="text-muted">{event.duration}</p>
+                          <p className="mt-1 text-xs text-muted">
                             {format(event.startDate, "MMM d")} -{" "}
                             {format(event.endDate, "MMM d, yyyy")}
                           </p>
@@ -197,12 +223,86 @@ export default function CustomCalendar({
                       </TooltipContent>
                     </Tooltip>
                   ))}
+
+                  {/* Show +X more indicator */}
+                  {dayEvents.length > 3 && (
+                    <div className="px-1 text-[10px] font-medium text-muted-foreground">
+                      + {dayEvents.length - 3} more
+                    </div>
+                  )}
                 </div>
               </div>
             )
           })}
         </TooltipProvider>
       </div>
+
+      {/* Detail Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Leaves for{" "}
+              {selectedDay ? format(selectedDay, "MMMM d, yyyy") : ""}
+            </DialogTitle>
+            <DialogDescription>
+              Full list of approved leave requests for this date.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] space-y-4 overflow-y-auto pr-2">
+            {selectedDay &&
+              events
+                .filter((e) => isDateInEvent(selectedDay, e))
+                .map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex items-center space-x-3 rounded-lg border p-3 shadow-sm transition-colors hover:bg-muted/30"
+                  >
+                    <AvatarLarge
+                      avatar_url={event.avatar_url || ""}
+                      fallback={
+                        event.employeeName.split(" ")[0].charAt(0) +
+                        event.employeeName.split(" ")[1].charAt(0)
+                      }
+                    />
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <p className="leading-none font-bold">
+                            {event.employeeName}
+                          </p>
+                          <div className="flex gap-1.5">
+                            <Badge
+                              variant="secondary"
+                              className={`px-1.5 py-0 text-[10px] ${
+                                event.type.toLowerCase() === "vacation leave"
+                                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                  : "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300"
+                              }`}
+                            >
+                              {event.type}
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className="px-1.5 py-0 text-[10px]"
+                            >
+                              {event.duration === "full-day"
+                                ? "Full Day"
+                                : "Half Day"}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {format(event.startDate, "MMM d")} -{" "}
+                        {format(event.endDate, "MMM d, yyyy")}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

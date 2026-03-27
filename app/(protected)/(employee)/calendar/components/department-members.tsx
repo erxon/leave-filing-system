@@ -19,14 +19,21 @@ import {
 import { Ellipsis, Users } from "lucide-react"
 import { AvatarLarge, AvatarSmall } from "./employee-avatars"
 
+interface Role {
+  role: string
+}
+
+interface Position {
+  name: string
+}
+
 interface Member {
   id: string
   first_name: string
   last_name: string
   avatar_url: string | null
-  position?: {
-    position_name: string
-  }
+  role: Role | Role[]
+  position_id?: Position | Position[]
 }
 
 interface DepartmentMembersProps {
@@ -34,7 +41,7 @@ interface DepartmentMembersProps {
 }
 
 export function DepartmentMembers({ members }: DepartmentMembersProps) {
-  const displayLimit = 5
+  const displayLimit = 3
   const hasMore = members.length > displayLimit
   const displayMembers = members.slice(0, displayLimit)
   const remainingCount = members.length - displayLimit
@@ -54,7 +61,7 @@ export function DepartmentMembers({ members }: DepartmentMembersProps) {
       </CardHeader>
       <CardContent>
         <div className="flex items-start gap-2 space-y-4">
-          <div className="flex -space-x-3 overflow-hidden">
+          <div className="flex items-center -space-x-3 overflow-hidden">
             {displayMembers.map((member) => (
               <AvatarSmall
                 key={member.id}
@@ -63,7 +70,7 @@ export function DepartmentMembers({ members }: DepartmentMembersProps) {
               />
             ))}
             {hasMore && (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium transition-transform hover:scale-110">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium transition-transform hover:scale-110">
                 +{remainingCount}
               </div>
             )}
@@ -85,7 +92,16 @@ export function DepartmentMembers({ members }: DepartmentMembersProps) {
               <div className="max-h-[60vh] overflow-y-auto pr-2">
                 <div className="space-y-4 py-4">
                   {members.map((member) => {
-                    const positionName = (member.position as { position_name: string } | undefined)?.position_name || "Employee"
+                    const positionData = member.position_id
+                    const positionName = Array.isArray(positionData)
+                      ? positionData[0]?.name || ""
+                      : (positionData as Position)?.name || ""
+
+                    const roleData = member.role
+                    const roleName = Array.isArray(roleData)
+                      ? roleData[0]?.role || ""
+                      : (roleData as Role)?.role || ""
+
                     return (
                       <div
                         key={member.id}
@@ -100,7 +116,9 @@ export function DepartmentMembers({ members }: DepartmentMembersProps) {
                             {member.first_name} {member.last_name}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {positionName}
+                            {roleName.charAt(0).toUpperCase() +
+                              roleName.slice(1)}
+                            {positionName && ` | ${positionName}`}
                           </p>
                         </div>
                       </div>
